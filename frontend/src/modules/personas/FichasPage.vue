@@ -83,7 +83,7 @@
         <q-item v-for="p in lista" :key="p.id">
           <q-item-section>
             <q-item-label>{{ p.nombres }} {{ p.apellidos }}</q-item-label>
-            <q-item-label caption>{{ p.es_alumno ? 'Alumno' : 'Representante' }} · {{ p.numero_doc }}</q-item-label>
+            <q-item-label caption>{{ etiquetaFicha(p) }} · {{ p.numero_doc }}</q-item-label>
           </q-item-section>
           <q-item-section side>
             <q-btn flat no-caps color="primary" label="Editar" @click="editar(p)" />
@@ -109,6 +109,13 @@ interface Persona {
   tipo_doc: string;
   numero_doc: string;
   es_alumno: boolean;
+  es_trabajador: boolean;
+}
+
+function etiquetaFicha(p: Persona) {
+  if (p.es_alumno) return 'Alumno';
+  if (p.es_trabajador) return 'Docente';
+  return 'Representante';
 }
 
 const $q = useQuasar();

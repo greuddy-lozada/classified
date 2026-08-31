@@ -38,6 +38,11 @@ class AsignacionOut(BaseModel):
 class DocenteOut(BaseModel):
     usuario_id: UUID
     email: str
+    persona_id: UUID | None = None
+    nombres: str = ""
+    apellidos: str = ""
+    tipo_doc: str | None = None
+    numero_doc: str | None = None
 
 
 class NotaIn(BaseModel):

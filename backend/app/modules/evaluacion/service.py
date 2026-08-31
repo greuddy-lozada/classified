@@ -174,7 +174,25 @@ def listar_docentes(db: Session, org_id: UUID) -> list[DocenteOut]:
         .filter(Membresia.organizacion_id == org_id, Membresia.rol == Rol.docente)
         .all()
     )
-    return [DocenteOut(usuario_id=u.id, email=u.email) for _m, u in rows]
+    out: list[DocenteOut] = []
+    for _m, user in rows:
+        persona = (
+            db.query(Persona)
+            .filter(Persona.usuario_id == user.id, Persona.organizacion_id == org_id)
+            .first()
+        )
+        out.append(
+            DocenteOut(
+                usuario_id=user.id,
+                email=user.email,
+                persona_id=persona.id if persona else None,
+                nombres=persona.nombres if persona else "",
+                apellidos=persona.apellidos if persona else "",
+                tipo_doc=persona.tipo_doc.value if persona else None,
+                numero_doc=persona.numero_doc if persona else None,
+            )
+        )
+    return out
 
 
 def _inscripcion_activa(db: Session, org_id: UUID, inscripcion_id: UUID) -> Inscripcion:

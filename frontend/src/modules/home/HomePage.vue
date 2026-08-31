@@ -70,7 +70,7 @@ const atajos = computed(() => {
     { title: 'Fichas', caption: 'Alumnos y representantes', icon: 'badge', link: '/dashboard/fichas' },
     { title: 'Año escolar', caption: 'Lapsos, grados y secciones', icon: 'event', link: '/dashboard/periodo' },
     { title: 'Materias', caption: 'Pensum por grado', icon: 'menu_book', link: '/dashboard/materias' },
-    { title: 'Docentes', caption: 'Asignación a sección', icon: 'co_present', link: '/dashboard/docentes' },
+    { title: 'Docentes', caption: 'Fichas y asignación', icon: 'co_present', link: '/dashboard/docentes' },
     { title: 'Inscripciones', caption: 'Cupo y sección', icon: 'how_to_reg', link: '/dashboard/inscripciones' },
     { title: 'Asistencia', caption: 'Lista del día', icon: 'event_available', link: '/dashboard/asistencia' },
   ];

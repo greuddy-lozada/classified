@@ -10,12 +10,13 @@ from app.modules.personas.service import (
     actualizar_persona,
     borrar_persona,
     crear_alumno,
+    crear_docente,
     crear_representante,
     listar,
     mis_pupilos,
     obtener,
 )
-from app.schemas.persona import PersonaCreate, PersonaOut, PersonaUpdate, RepresentanteCreate
+from app.schemas.persona import DocenteCreate, PersonaCreate, PersonaOut, PersonaUpdate, RepresentanteCreate
 
 router = APIRouter(prefix="/personas", tags=["personas"])
 
@@ -55,6 +56,16 @@ def post_representante(
 ) -> PersonaOut:
     _staff(current)
     return crear_representante(db, current.org_id, **body.model_dump())
+
+
+@router.post("/docentes", response_model=PersonaOut, status_code=status.HTTP_201_CREATED)
+def post_docente(
+    body: DocenteCreate,
+    db: Annotated[Session, Depends(get_db)],
+    current: Annotated[CurrentUser, Depends(require_org)],
+) -> PersonaOut:
+    _staff(current)
+    return crear_docente(db, current.org_id, **body.model_dump())
 
 
 @router.get("/mis-pupilos", response_model=list[PersonaOut])

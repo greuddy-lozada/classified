@@ -5,16 +5,18 @@ from sqlalchemy.orm import Session
 
 from app.core.security import hash_password
 from app.models.alumno import Alumno
+from app.models.asignacion import AsignacionDocente
 from app.models.enums import Parentesco, Rol, TipoDoc
 from app.models.inscripcion import Inscripcion
 from app.models.membresia import Membresia
 from app.models.persona import Persona
+from app.models.trabajador import Trabajador
 from app.models.usuario import Usuario
 from app.models.vinculo import VinculoRepresentante
 from app.schemas.persona import PersonaOut
 
 
-def _out(persona: Persona) -> PersonaOut:
+def _out(db: Session, persona: Persona) -> PersonaOut:
     return PersonaOut(
         id=persona.id,
         organizacion_id=persona.organizacion_id,
@@ -24,6 +26,7 @@ def _out(persona: Persona) -> PersonaOut:
         nombres=persona.nombres,
         apellidos=persona.apellidos,
         es_alumno=persona.alumno is not None,
+        es_trabajador=db.query(Trabajador).filter(Trabajador.persona_id == persona.id).first() is not None,
         alumno_id=persona.alumno.id if persona.alumno else None,
     )
 
@@ -70,12 +73,12 @@ def crear_alumno(
     db.refresh(persona)
     if persona.alumno is None:
         persona.alumno = db.query(Alumno).filter(Alumno.persona_id == persona.id).one()
-    return _out(persona)
+    return _out(db, persona)
 
 
 def listar(db: Session, org_id: UUID) -> list[PersonaOut]:
     rows = db.query(Persona).filter(Persona.organizacion_id == org_id).all()
-    return [_out(p) for p in rows]
+    return [_out(db, p) for p in rows]
 
 
 def obtener(db: Session, org_id: UUID, persona_id: UUID) -> PersonaOut:
@@ -86,7 +89,7 @@ def obtener(db: Session, org_id: UUID, persona_id: UUID) -> PersonaOut:
     )
     if persona is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="No encontrada")
-    return _out(persona)
+    return _out(db, persona)
 
 
 def _persona_del_plantel(db: Session, org_id: UUID, persona_id: UUID) -> Persona:
@@ -128,11 +131,21 @@ def actualizar_persona(
     persona.apellidos = apellidos.strip()
     db.commit()
     db.refresh(persona)
-    return _out(persona)
+    return _out(db, persona)
 
 
 def borrar_persona(db: Session, org_id: UUID, persona_id: UUID) -> None:
     persona = _persona_del_plantel(db, org_id, persona_id)
+    trabajador = db.query(Trabajador).filter(Trabajador.persona_id == persona.id).first()
+    if trabajador is not None:
+        if db.query(AsignacionDocente).filter(AsignacionDocente.usuario_id == trabajador.usuario_id).first():
+            raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="El docente tiene asignación")
+        db.delete(trabajador)
+        if persona.usuario_id:
+            for m in db.query(Membresia).filter(
+                Membresia.usuario_id == persona.usuario_id, Membresia.organizacion_id == org_id
+            ):
+                db.delete(m)
     if persona.alumno is not None:
         if db.query(Inscripcion).filter(Inscripcion.alumno_id == persona.alumno.id).first():
             raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="El alumno tiene inscripción")
@@ -214,7 +227,67 @@ def crear_representante(
     )
     db.commit()
     db.refresh(persona)
-    return _out(persona)
+    return _out(db, persona)
+
+
+def crear_docente(
+    db: Session,
+    org_id: UUID,
+    *,
+    tipo_doc: TipoDoc,
+    numero_doc: str,
+    nombres: str,
+    apellidos: str,
+    email: str,
+    password: str,
+    fecha_nacimiento=None,
+    sexo=None,
+    telefono=None,
+    direccion=None,
+) -> PersonaOut:
+    exists = (
+        db.query(Persona)
+        .filter(
+            Persona.organizacion_id == org_id,
+            Persona.tipo_doc == tipo_doc,
+            Persona.numero_doc == numero_doc,
+        )
+        .first()
+    )
+    if exists:
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Documento ya existe")
+    if db.query(Usuario).filter(Usuario.email == email).first():
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Email ya existe")
+    user = Usuario(id=uuid4(), email=email, password_hash=hash_password(password))
+    db.add(user)
+    db.flush()
+    persona = Persona(
+        id=uuid4(),
+        organizacion_id=org_id,
+        usuario_id=user.id,
+        tipo_doc=tipo_doc,
+        numero_doc=numero_doc,
+        nombres=nombres,
+        apellidos=apellidos,
+        fecha_nacimiento=fecha_nacimiento,
+        sexo=sexo,
+        telefono=telefono,
+        direccion=direccion,
+    )
+    db.add(persona)
+    db.flush()
+    db.add(Trabajador(id=uuid4(), persona_id=persona.id, usuario_id=user.id))
+    db.add(
+        Membresia(
+            id=uuid4(),
+            usuario_id=user.id,
+            organizacion_id=org_id,
+            rol=Rol.docente,
+        )
+    )
+    db.commit()
+    db.refresh(persona)
+    return _out(db, persona)
 
 
 def mis_pupilos(db: Session, org_id: UUID, usuario_id: UUID) -> list[PersonaOut]:
@@ -237,5 +310,5 @@ def mis_pupilos(db: Session, org_id: UUID, usuario_id: UUID) -> list[PersonaOut]
             continue
         persona = db.get(Persona, alumno.persona_id)
         if persona and persona.organizacion_id == org_id:
-            out.append(_out(persona))
+            out.append(_out(db, persona))
     return out

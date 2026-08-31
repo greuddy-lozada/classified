@@ -33,6 +33,7 @@ class PersonaOut(BaseModel):
     nombres: str
     apellidos: str
     es_alumno: bool
+    es_trabajador: bool = False
     alumno_id: UUID | None = None
 
 
@@ -42,3 +43,8 @@ class RepresentanteCreate(PersonaCreate):
     alumno_id: UUID
     parentesco: Parentesco
     es_principal: bool = True
+
+
+class DocenteCreate(PersonaCreate):
+    email: str
+    password: str
