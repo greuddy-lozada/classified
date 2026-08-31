@@ -2,8 +2,11 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.core.config import settings
+from app.modules.identidad.router import router as identidad_router
 
 app = FastAPI(title="Classified")
+
+app.include_router(identidad_router)
 
 app.add_middleware(
     CORSMiddleware,
