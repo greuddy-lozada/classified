@@ -16,6 +16,7 @@ from app.models import (  # noqa: F401
     AnioEscolar,
     Grado,
     AsignacionDocente,
+    Asistencia,
     InformeItem,
     Inscripcion,
     Lapso,

@@ -76,3 +76,10 @@ class Juicio(str, Enum):
     logrado = "logrado"
     en_proceso = "en_proceso"
     iniciado = "iniciado"
+
+
+class EstadoAsistencia(str, Enum):
+    presente = "presente"
+    ausente = "ausente"
+    justificado = "justificado"
+    tardanza = "tardanza"
