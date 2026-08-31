@@ -11,7 +11,19 @@ from app.core.security import hash_password
 from app.db.base import Base
 from app.db.session import get_db
 from app.main import app
-from app.models import Alumno, Membresia, Organizacion, Persona, Trabajador, Usuario, VinculoRepresentante  # noqa: F401
+from app.models import (  # noqa: F401
+    Alumno,
+    AnioEscolar,
+    Grado,
+    Lapso,
+    Membresia,
+    Organizacion,
+    Persona,
+    Seccion,
+    Trabajador,
+    Usuario,
+    VinculoRepresentante,
+)
 from app.models.enums import Rol
 from app.models.membresia import Membresia
 from app.models.usuario import Usuario
@@ -103,6 +115,29 @@ def secretaria_b(db: Session, org_b: Organizacion) -> Usuario:
             usuario_id=user.id,
             organizacion_id=org_b.id,
             rol=Rol.secretaria,
+        )
+    )
+    db.commit()
+    db.refresh(user)
+    return user
+
+
+@pytest.fixture
+def direccion(db: Session, org: Organizacion) -> Usuario:
+    user = Usuario(
+        id=uuid.uuid4(),
+        email="dir@a.edu",
+        password_hash=hash_password("clave123"),
+        es_plataforma=False,
+    )
+    db.add(user)
+    db.flush()
+    db.add(
+        Membresia(
+            id=uuid.uuid4(),
+            usuario_id=user.id,
+            organizacion_id=org.id,
+            rol=Rol.direccion,
         )
     )
     db.commit()

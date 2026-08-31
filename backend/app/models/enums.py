@@ -22,3 +22,19 @@ class Parentesco(str, Enum):
     padre = "padre"
     abuelo = "abuelo"
     tutor = "tutor"
+
+
+class Nivel(str, Enum):
+    inicial = "inicial"
+    primaria = "primaria"
+    media = "media"
+
+
+class Turno(str, Enum):
+    manana = "manana"
+    tarde = "tarde"
+
+
+class EsquemaEvaluacion(str, Enum):
+    informe = "informe"
+    numerico = "numerico"
