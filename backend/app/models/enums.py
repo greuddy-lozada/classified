@@ -83,3 +83,8 @@ class EstadoAsistencia(str, Enum):
     ausente = "ausente"
     justificado = "justificado"
     tardanza = "tardanza"
+
+
+class TipoCargo(str, Enum):
+    matricula = "matricula"
+    mensualidad = "mensualidad"

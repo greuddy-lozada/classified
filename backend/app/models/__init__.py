@@ -2,6 +2,7 @@ from app.models.alumno import Alumno
 from app.models.anio_escolar import AnioEscolar
 from app.models.asignacion import AsignacionDocente
 from app.models.asistencia import Asistencia
+from app.models.cargo import Cargo
 from app.models.grado import Grado
 from app.models.informe import InformeItem
 from app.models.inscripcion import Inscripcion
@@ -22,6 +23,7 @@ __all__ = [
     "AnioEscolar",
     "AsignacionDocente",
     "Asistencia",
+    "Cargo",
     "Grado",
     "InformeItem",
     "Inscripcion",
