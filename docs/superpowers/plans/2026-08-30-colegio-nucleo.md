@@ -73,7 +73,7 @@ Borrar al final: CRUD `/items/` en `main.py`, `routes.ts` (raíz del repo), depe
 - Modify: `backend/Dockerfile`
 - Create: `backend/pytest.ini`
 
-- [ ] **Step 1: Reemplazar requirements**
+- [x] **Step 1: Reemplazar requirements**
 
 `backend/requirements.txt`:
 
@@ -93,7 +93,7 @@ httpx==0.28.1
 pytest==8.3.4
 ```
 
-- [ ] **Step 2: Compose con Postgres 16**
+- [x] **Step 2: Compose con Postgres 16**
 
 `docker-compose.yml` — quitar el servicio `mongodb` y el volumen `mongodb_data`. El backend usa:
 
@@ -158,7 +158,7 @@ Usar `postgres_data:/var/lib/postgresql/data` (no `/var/db`). El bloque de arrib
       - postgres_data:/var/lib/postgresql/data
 ```
 
-- [ ] **Step 3: Dockerfile del backend**
+- [x] **Step 3: Dockerfile del backend**
 
 `backend/Dockerfile`:
 
@@ -179,7 +179,7 @@ CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000", "--reload
 
 El código vive en paquete `app`, no suelto en `/app/main.py`. Ajustar el volumen de compose a `./backend:/app` para que Alembic y tests existan en el contenedor.
 
-- [ ] **Step 4: pytest.ini**
+- [x] **Step 4: pytest.ini**
 
 `backend/pytest.ini`:
 
@@ -189,7 +189,7 @@ testpaths = tests
 pythonpath = .
 ```
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add backend/requirements.txt backend/Dockerfile backend/pytest.ini docker-compose.yml
@@ -208,7 +208,7 @@ git commit -m "build: swap Mongo for Postgres and pin API deps"
 - Create: `backend/tests/conftest.py`
 - Create: `backend/tests/test_health.py`
 
-- [ ] **Step 1: Test de health**
+- [x] **Step 1: Test de health**
 
 `backend/tests/test_health.py`:
 
@@ -226,13 +226,13 @@ def test_health():
     assert response.json() == {"status": "ok"}
 ```
 
-- [ ] **Step 2: Correr y ver que falla**
+- [x] **Step 2: Correr y ver que falla**
 
 Run: `cd backend && pytest tests/test_health.py -v`
 
 Expected: FAIL (no module `app.main` o no ruta `/health`)
 
-- [ ] **Step 3: Implementar config, db y main**
+- [x] **Step 3: Implementar config, db y main**
 
 `backend/app/core/config.py`:
 
@@ -310,13 +310,13 @@ def health() -> dict[str, str]:
     return {"status": "ok"}
 ```
 
-- [ ] **Step 4: Correr tests**
+- [x] **Step 4: Correr tests**
 
 Run: `cd backend && pytest tests/test_health.py -v`
 
 Expected: PASS
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add backend/app backend/tests/test_health.py backend/tests/conftest.py
@@ -341,7 +341,7 @@ Si `conftest.py` aún no existe, no lo agregues en este commit; se crea en Task 
 - Create: `backend/app/models/__init__.py`
 - Create: `backend/tests/test_models.py`
 
-- [ ] **Step 1: Test de unicidad de documento por plantel**
+- [x] **Step 1: Test de unicidad de documento por plantel**
 
 `backend/tests/conftest.py`:
 
@@ -453,13 +453,13 @@ def test_documento_unico_en_el_mismo_colegio(db: Session, org: Organizacion) -> 
         db.commit()
 ```
 
-- [ ] **Step 2: Correr y ver que falla**
+- [x] **Step 2: Correr y ver que falla**
 
 Run: `cd backend && pytest tests/test_models.py -v`
 
 Expected: FAIL (import error de modelos)
 
-- [ ] **Step 3: Implementar enums y modelos**
+- [x] **Step 3: Implementar enums y modelos**
 
 `backend/app/models/enums.py`:
 
@@ -683,13 +683,13 @@ __all__ = [
 
 SQLite no aplica `UniqueConstraint` igual que Postgres si el test de IntegrityError falla: ejecutar el mismo test contra Postgres en Task 4. Si el test SQLite no dispara IntegrityError, marcar la columna con `unique` compuesto y usar `db.flush()`; el constraint de SQLAlchemy + SQLite 3 sí falla en `UniqueConstraint` al commit.
 
-- [ ] **Step 4: Correr tests**
+- [x] **Step 4: Correr tests**
 
 Run: `cd backend && pytest tests/test_models.py -v`
 
 Expected: PASS
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add backend/app/models backend/tests/conftest.py backend/tests/test_models.py
@@ -706,7 +706,7 @@ git commit -m "feat: add core school identity models"
 - Create: `backend/alembic/script.py.mako`
 - Create: `backend/alembic/versions/001_nucleo.py`
 
-- [ ] **Step 1: alembic.ini** (en `backend/`)
+- [x] **Step 1: alembic.ini** (en `backend/`)
 
 ```ini
 [alembic]
@@ -747,7 +747,7 @@ formatter = generic
 format = %(levelname)-5.5s [%(name)s] %(message)s
 ```
 
-- [ ] **Step 2: env.py lee settings**
+- [x] **Step 2: env.py lee settings**
 
 `backend/alembic/env.py`:
 
@@ -795,7 +795,7 @@ else:
 
 Copiar `script.py.mako` estándar de Alembic (`alembic init alembic` desde `backend/` y luego editar `env.py` es válido). Si usas `alembic init`, no reescribas a mano el ini entero: inicia y pega el `env.py` de arriba.
 
-- [ ] **Step 3: Generar y aplicar**
+- [x] **Step 3: Generar y aplicar**
 
 Run:
 
@@ -808,7 +808,7 @@ Expected: tabla `organizacion`, `usuario`, `membresia`, `persona`, `alumno`, `vi
 
 Renombra el archivo generado a `backend/alembic/versions/001_nucleo.py` solo si el hash de Alembic no se usa como nombre; si Alembic ya creó `xxxx_nucleo.py`, déjalo.
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
 git add backend/alembic.ini backend/alembic
@@ -823,7 +823,7 @@ git commit -m "feat: add Alembic migration for identity tables"
 - Create: `backend/app/core/security.py`
 - Create: `backend/tests/test_security.py`
 
-- [ ] **Step 1: Tests**
+- [x] **Step 1: Tests**
 
 `backend/tests/test_security.py`:
 
@@ -853,13 +853,13 @@ def test_access_token_claims() -> None:
     assert payload["typ"] == "access"
 ```
 
-- [ ] **Step 2: Correr y ver que falla**
+- [x] **Step 2: Correr y ver que falla**
 
 Run: `cd backend && pytest tests/test_security.py -v`
 
 Expected: FAIL (`app.core.security` no existe)
 
-- [ ] **Step 3: Implementar**
+- [x] **Step 3: Implementar**
 
 `backend/app/core/security.py`:
 
@@ -925,13 +925,13 @@ def as_uuid(value: str | None) -> UUID | None:
     return UUID(value)
 ```
 
-- [ ] **Step 4: Correr tests**
+- [x] **Step 4: Correr tests**
 
 Run: `cd backend && pytest tests/test_security.py -v`
 
 Expected: PASS
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add backend/app/core/security.py backend/tests/test_security.py
@@ -951,7 +951,7 @@ git commit -m "feat: add password hashing and JWT helpers"
 - Modify: `backend/app/main.py`
 - Modify: `backend/tests/conftest.py`
 
-- [ ] **Step 1: Fixtures HTTP y test de login**
+- [x] **Step 1: Fixtures HTTP y test de login**
 
 Añadir a `backend/tests/conftest.py`:
 
@@ -1045,13 +1045,13 @@ def test_me_con_token(client: TestClient, secretaria: Usuario) -> None:
     assert me.json()["rol"] == "secretaria"
 ```
 
-- [ ] **Step 2: Correr y ver que falla**
+- [x] **Step 2: Correr y ver que falla**
 
 Run: `cd backend && pytest tests/test_auth.py -v`
 
 Expected: FAIL (404 en `/auth/login`)
 
-- [ ] **Step 3: Schemas, deps, service, router**
+- [x] **Step 3: Schemas, deps, service, router**
 
 `backend/app/schemas/auth.py`:
 
@@ -1287,7 +1287,7 @@ app.include_router(identidad_router)
 
 Añadir `email-validator` si Pydantic `EmailStr` lo exige: `email-validator==2.2.0` en `requirements.txt`.
 
-- [ ] **Step 4: Correr tests**
+- [x] **Step 4: Correr tests**
 
 Run: `cd backend && pytest tests/test_auth.py -v`
 
@@ -1295,7 +1295,7 @@ Expected: PASS
 
 Si SQLite + `joinedload` falla, en el fixture `db` ejecutar `Base.metadata.create_all` después de importar todos los modelos (ya está en conftest).
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add backend/app/schemas/auth.py backend/app/core/deps.py backend/app/modules/identidad backend/app/main.py backend/tests/conftest.py backend/tests/test_auth.py backend/requirements.txt
@@ -1313,7 +1313,7 @@ git commit -m "feat: add login, plantel selection, and /auth/me"
 - Modify: `backend/app/main.py`
 - Modify: `backend/tests/conftest.py`
 
-- [ ] **Step 1: Tests**
+- [x] **Step 1: Tests**
 
 Añadir fixture a `conftest.py`:
 
@@ -1383,13 +1383,13 @@ def test_plataforma_crea_colegio_y_admin(client: TestClient, plataforma: Usuario
     assert login.json()["membresias"][0]["rol"] == "direccion"
 ```
 
-- [ ] **Step 2: Correr y ver que falla**
+- [x] **Step 2: Correr y ver que falla**
 
 Run: `cd backend && pytest tests/test_plataforma.py -v`
 
 Expected: FAIL (404)
 
-- [ ] **Step 3: Implementar**
+- [x] **Step 3: Implementar**
 
 `backend/app/schemas/plataforma.py`:
 
@@ -1488,13 +1488,13 @@ from app.modules.plataforma.router import router as plataforma_router
 app.include_router(plataforma_router)
 ```
 
-- [ ] **Step 4: Correr tests**
+- [x] **Step 4: Correr tests**
 
 Run: `cd backend && pytest tests/test_plataforma.py tests/test_auth.py -v`
 
 Expected: PASS
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add backend/app/modules/plataforma backend/app/schemas/plataforma.py backend/app/main.py backend/tests/conftest.py backend/tests/test_plataforma.py
@@ -1514,7 +1514,7 @@ git commit -m "feat: allow platform to provision a school and first admin"
 - Modify: `backend/app/main.py`
 - Modify: `backend/tests/conftest.py`
 
-- [ ] **Step 1: Tests de aislamiento y alta de alumno**
+- [x] **Step 1: Tests de aislamiento y alta de alumno**
 
 Añadir fixture `secretaria_b` en `conftest.py` (segundo colegio):
 
@@ -1642,13 +1642,13 @@ def test_colegio_b_no_ve_ficha_de_a(
     assert stolen.status_code == 404
 ```
 
-- [ ] **Step 2: Correr y ver que falla**
+- [x] **Step 2: Correr y ver que falla**
 
 Run: `cd backend && pytest tests/test_personas.py tests/test_tenant.py -v`
 
 Expected: FAIL (404)
 
-- [ ] **Step 3: Implementar personas**
+- [x] **Step 3: Implementar personas**
 
 `backend/app/schemas/persona.py`:
 
@@ -1833,13 +1833,13 @@ app.include_router(personas_router)
 
 `require_org` ya garantiza `org_id`. El service **siempre** filtra por ese id; nunca por querystring.
 
-- [ ] **Step 4: Correr tests**
+- [x] **Step 4: Correr tests**
 
 Run: `cd backend && pytest tests/test_personas.py tests/test_tenant.py tests/test_auth.py tests/test_plataforma.py -v`
 
 Expected: PASS
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add backend/app/schemas/persona.py backend/app/modules/personas backend/app/main.py backend/tests
@@ -1856,7 +1856,7 @@ git commit -m "feat: add per-school student records with tenant isolation"
 - Modify: `backend/app/modules/personas/router.py`
 - Create: `backend/tests/test_representante.py`
 
-- [ ] **Step 1: Test**
+- [x] **Step 1: Test**
 
 `backend/tests/test_representante.py`:
 
@@ -1904,13 +1904,13 @@ def test_representante_solo_ve_sus_pupilos(client: TestClient, secretaria: Usuar
 
 Esto exige que `PersonaOut` de alumno incluya `alumno_id`.
 
-- [ ] **Step 2: Correr y ver que falla**
+- [x] **Step 2: Correr y ver que falla**
 
 Run: `cd backend && pytest tests/test_representante.py -v`
 
 Expected: FAIL
 
-- [ ] **Step 3: Extender schema, service y router**
+- [x] **Step 3: Extender schema, service y router**
 
 En `PersonaOut` agregar `alumno_id: UUID | None = None`. En `_out`:
 
@@ -2058,13 +2058,13 @@ def get_mis_pupilos(db: Annotated[Session, Depends(get_db)], current: Annotated[
     return mis_pupilos(db, current.org_id, current.usuario.id)
 ```
 
-- [ ] **Step 4: Correr tests**
+- [x] **Step 4: Correr tests**
 
 Run: `cd backend && pytest tests/test_representante.py tests/test_personas.py tests/test_tenant.py -v`
 
 Expected: PASS
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add backend/app/schemas/persona.py backend/app/modules/personas backend/tests/test_representante.py
@@ -2079,7 +2079,7 @@ git commit -m "feat: link guardians to pupils and hide other students"
 - Create: `backend/app/modules/identidad/seed.py`
 - Modify: `backend/app/main.py`
 
-- [ ] **Step 1: Script de seed idempotente**
+- [x] **Step 1: Script de seed idempotente**
 
 `backend/app/modules/identidad/seed.py`:
 
@@ -2107,7 +2107,7 @@ def seed_if_empty(db: Session) -> None:
 
 No crear colegios de demo en seed: la plataforma los crea. Usuario de desarrollo: `ops@classified.app` / `clave123`.
 
-- [ ] **Step 2: Llamar seed al arrancar solo si `SEED_DEV=1`**
+- [x] **Step 2: Llamar seed al arrancar solo si `SEED_DEV=1`**
 
 En `config.py` agregar `seed_dev: bool = False`.
 
@@ -2130,7 +2130,7 @@ def _seed() -> None:
 
 En compose, `SEED_DEV=1` para el backend.
 
-- [ ] **Step 3: Commit**
+- [x] **Step 3: Commit**
 
 ```bash
 git add backend/app/modules/identidad/seed.py backend/app/core/config.py backend/app/main.py docker-compose.yml
@@ -2146,7 +2146,7 @@ git commit -m "feat: seed platform operator in development"
 - Create: `frontend/src/stores/auth.ts`
 - Modify: `frontend/src/modules/auth/composables/useAuth.ts`
 
-- [ ] **Step 1: Axios contra VITE_API_URL**
+- [x] **Step 1: Axios contra VITE_API_URL**
 
 `frontend/src/boot/axios.ts` — reemplazar el `baseURL` hardcodeado:
 
@@ -2181,7 +2181,7 @@ export default defineBoot(({ app }) => {
 export { api };
 ```
 
-- [ ] **Step 2: Store Pinia**
+- [x] **Step 2: Store Pinia**
 
 `frontend/src/stores/auth.ts`:
 
@@ -2245,7 +2245,7 @@ export const useAuthStore = defineStore('auth', {
 });
 ```
 
-- [ ] **Step 3: useAuth delgado**
+- [x] **Step 3: useAuth delgado**
 
 `frontend/src/modules/auth/composables/useAuth.ts` — borrar el bloque comentado y dejar:
 
@@ -2257,7 +2257,7 @@ export function useAuth() {
 }
 ```
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
 git add frontend/src/boot/axios.ts frontend/src/stores/auth.ts frontend/src/modules/auth/composables/useAuth.ts
@@ -2277,7 +2277,7 @@ git commit -m "feat: wire frontend API client and auth store"
 - Create: `frontend/src/modules/home/HomePage.vue` (reemplazar vacío)
 - Delete: `routes.ts` (raíz del repo)
 
-- [ ] **Step 1: Login llama al store**
+- [x] **Step 1: Login llama al store**
 
 En `frontend/src/modules/auth/pages/LoginPage.vue` reemplazar el bloque `<script>` (el template no se toca):
 
@@ -2333,7 +2333,7 @@ export default {
 </script>
 ```
 
-- [ ] **Step 2: SelectOrgPage.vue**
+- [x] **Step 2: SelectOrgPage.vue**
 
 ```vue
 <template>
@@ -2371,7 +2371,7 @@ async function pick(m: Membresia) {
 </script>
 ```
 
-- [ ] **Step 3: Rutas**
+- [x] **Step 3: Rutas**
 
 `frontend/src/router/routes.ts`:
 
@@ -2431,7 +2431,7 @@ En `frontend/src/router/index.ts`, después de crear `Router`:
   });
 ```
 
-- [ ] **Step 4: Dashboard mínimo**
+- [x] **Step 4: Dashboard mínimo**
 
 Reemplazar el `<script>` de `DashboardLayout.vue` (el template de drawer se queda; `linksList` pasa a computarse). Añadir en el toolbar un botón Salir. Template del header: junto al título,
 
@@ -2515,9 +2515,9 @@ const greeting = computed(() => {
 </script>
 ```
 
-- [ ] **Step 5: Borrar `routes.ts` de la raíz del repo** (duplicado muerto).
+- [x] **Step 5: Borrar `routes.ts` de la raíz del repo** (duplicado muerto).
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add frontend/src/modules/auth/pages frontend/src/router frontend/src/layouts/DashboardLayout.vue frontend/src/modules/home/HomePage.vue
@@ -2532,7 +2532,7 @@ git commit -m "feat: add login, plantel picker, and role home"
 **Files:**
 - Modify: `README.md`
 
-- [ ] **Step 1: README**
+- [x] **Step 1: README**
 
 Reemplazar el README raíz para que describa el stack real:
 
@@ -2571,7 +2571,7 @@ cd backend && pytest -v
 ```
 ```
 
-- [ ] **Step 2: Suite completa**
+- [x] **Step 2: Suite completa**
 
 Run: `cd backend && pytest -v`
 
@@ -2588,7 +2588,7 @@ Expected: PASS en `test_health`, `test_models`, `test_security`, `test_auth`, `t
 7. Login representante → solo ese pupilo
 8. Repetir en otro colegio: la lista de personas está vacía
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
 git add README.md
