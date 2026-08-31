@@ -21,6 +21,8 @@ const routes: RouteRecordRaw[] = [
     children: [
       { path: '', component: () => import('../modules/home/HomePage.vue') },
       { path: 'periodo', component: () => import('../modules/periodo/PeriodoPage.vue') },
+      { path: 'inscripciones', component: () => import('../modules/inscripcion/InscripcionPage.vue') },
+      { path: 'mis-inscripciones', component: () => import('../modules/inscripcion/MisInscripcionesPage.vue') },
     ],
   },
   {
