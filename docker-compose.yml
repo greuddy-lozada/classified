@@ -1,18 +1,18 @@
 services:
-  # FastAPI Backend
   backend:
     build: ./backend
     ports:
       - "8000:8000"
     environment:
-      - MONGODB_URL=mongodb://mongodb:27017
+      - DATABASE_URL=postgresql+psycopg://classified:classified@postgres:5432/classified
+      - JWT_SECRET=dev-only-change-me
     depends_on:
-      - mongodb
+      postgres:
+        condition: service_healthy
     volumes:
-      - ./backend/app:/app  # Hot reload for backend
+      - ./backend:/app
     restart: unless-stopped
 
-  # Quasar Frontend
   frontend:
     build: ./frontend
     ports:
@@ -23,25 +23,29 @@ services:
       - ./frontend/quasar.config.js:/app/quasar.config.js
       - ./frontend/package.json:/app/package.json
       - ./frontend/index.html:/app/index.html
-      - ./frontend/.postcssrc.js:/app/.postcssrc.js
-      - ./frontend/.eslintrc.js:/app/.eslintrc.js
     environment:
       - VITE_API_URL=http://localhost:8000
     depends_on:
       - backend
-    command: quasar dev # Start Quasar dev server
+    command: quasar dev
     restart: unless-stopped
 
-  # MongoDB Database
-  mongodb:
-    image: mongo:4.4
+  postgres:
+    image: postgres:16-alpine
     ports:
-      - "27017:27017"
+      - "5432:5432"
     environment:
-      - MONGO_INITDB_DATABASE=fastapi_db
+      POSTGRES_USER: classified
+      POSTGRES_PASSWORD: classified
+      POSTGRES_DB: classified
     volumes:
-      - mongodb_data:/data/db
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U classified"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
     restart: unless-stopped
 
 volumes:
-  mongodb_data:
+  postgres_data:
