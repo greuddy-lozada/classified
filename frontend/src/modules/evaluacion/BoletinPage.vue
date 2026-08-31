@@ -1,6 +1,9 @@
 <template>
   <q-page class="q-pa-lg">
-    <div class="text-h5 q-mb-md">Boletín</div>
+    <div class="row items-center q-mb-md">
+      <div class="text-h5 col">Boletín</div>
+      <q-btn v-if="boletin" color="primary" label="Descargar PDF" @click="descargar" />
+    </div>
     <div v-if="boletin">
       <div class="text-subtitle1">{{ boletin.alumno_nombres }} {{ boletin.alumno_apellidos }}</div>
       <div class="text-caption q-mb-md">
@@ -58,4 +61,15 @@ onMounted(async () => {
   const { data } = await api.get<Boletin>(`/evaluacion/boletines/${id}`);
   boletin.value = data;
 });
+
+async function descargar() {
+  const id = String(route.params.inscripcionId);
+  const { data } = await api.get<Blob>(`/evaluacion/boletines/${id}/pdf`, { responseType: 'blob' });
+  const url = URL.createObjectURL(data);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = boletin.value?.esquema === 'informe' ? 'informe.pdf' : 'boletin.pdf';
+  a.click();
+  URL.revokeObjectURL(url);
+}
 </script>
