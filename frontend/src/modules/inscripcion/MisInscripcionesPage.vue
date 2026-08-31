@@ -12,7 +12,7 @@
             </q-item-label>
           </q-item-section>
           <q-item-section side>
-            <q-btn unelevated no-caps color="primary" text-color="dark" label="Boletín" :to="`/dashboard/boletines/${ins.id}`" />
+            <q-btn unelevated no-caps color="primary" label="Boletín" :to="`/dashboard/boletines/${ins.id}`" />
           </q-item-section>
         </q-item>
       </q-list>

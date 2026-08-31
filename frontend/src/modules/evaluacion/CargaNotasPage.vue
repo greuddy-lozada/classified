@@ -44,7 +44,7 @@
           <q-input v-model.number="valor" outlined type="number" label="Nota 1–20" />
         </div>
         <div class="col-12">
-          <q-btn unelevated type="submit" color="primary" text-color="dark" no-caps label="Guardar nota" />
+          <q-btn unelevated type="submit" color="primary" no-caps label="Guardar nota" />
         </div>
       </q-form>
     </div>
@@ -62,7 +62,7 @@
           <q-input v-model="comentario" outlined label="Comentario" />
         </div>
         <div class="col-12">
-          <q-btn unelevated type="submit" color="primary" text-color="dark" no-caps label="Guardar informe" />
+          <q-btn unelevated type="submit" color="primary" no-caps label="Guardar informe" />
         </div>
       </q-form>
     </div>

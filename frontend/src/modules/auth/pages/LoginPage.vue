@@ -48,7 +48,9 @@
                 unelevated
                 no-caps
                 type="submit"
-                class="cta full-width"
+                color="primary"
+                text-color="white"
+                class="full-width"
                 label="Entrar"
                 :loading="loading"
                 :disable="loading"
@@ -119,15 +121,16 @@ async function handleSubmit() {
 }
 
 .login-panel {
-  background: #f4f1ea;
-  color: #242232;
+  background: var(--color-surface);
+  color: var(--color-fg);
+  border: 1px solid var(--color-border);
   border-radius: 16px;
   padding: 1.5rem 1.5rem 1.75rem;
 }
 
 .hero-kicker {
   letter-spacing: 0.12em;
-  color: #63a278;
+  color: var(--color-primary);
 }
 
 .login-title {
@@ -139,12 +142,7 @@ async function handleSubmit() {
 .login-lead {
   margin: 0;
   line-height: 1.55;
-  color: rgba(244, 241, 234, 0.82);
-}
-
-.cta {
-  background: #63a278 !important;
-  color: #242232 !important;
+  color: var(--color-muted);
 }
 
 :deep(.q-btn) {
@@ -152,7 +150,7 @@ async function handleSubmit() {
 }
 
 :deep(.q-btn:focus-visible) {
-  outline: 3px solid #63a278;
+  outline: 3px solid var(--color-primary);
   outline-offset: 3px;
 }
 </style>

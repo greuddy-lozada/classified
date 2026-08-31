@@ -1,5 +1,13 @@
 /* src/css/variables.css */
 :root {
+  --color-primary: #0f6b4c;
+  --color-on-primary: #ffffff;
+  --color-bg: #f7f8f6;
+  --color-surface: #ffffff;
+  --color-fg: #1a1a1a;
+  --color-muted: #5c6560;
+  --color-border: #e2e6e3;
+
   /* Font family */
   --font-family: 'Ranade', -apple-system, BlinkMacSystemFont, sans-serif;
   
@@ -20,4 +28,6 @@ body {
   font-family: var(--font-family);
   font-variation-settings: 'wght' var(--font-weight-regular, 400);
   font-weight: var(--font-weight-regular, 400);
+  background: var(--color-bg);
+  color: var(--color-fg);
 }

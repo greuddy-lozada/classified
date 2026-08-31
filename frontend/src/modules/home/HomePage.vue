@@ -9,7 +9,7 @@
             <q-item-label caption>{{ estadoIns(p.estado) }} · matrícula {{ estadoPago(p.estado_matricula) }}</q-item-label>
           </q-item-section>
           <q-item-section side>
-            <q-btn unelevated color="primary" text-color="dark" no-caps label="Boletín" :to="`/dashboard/boletines/${p.id}`" />
+            <q-btn unelevated color="primary" no-caps label="Boletín" :to="`/dashboard/boletines/${p.id}`" />
           </q-item-section>
         </q-item>
       </q-list>

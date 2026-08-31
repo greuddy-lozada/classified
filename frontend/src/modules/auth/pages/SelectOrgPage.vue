@@ -45,8 +45,9 @@ async function pick(m: Membresia) {
 <style scoped>
 .select-card {
   width: min(420px, 100%);
-  background: #f4f1ea;
-  color: #242232;
+  background: var(--color-surface);
+  color: var(--color-fg);
+  border: 1px solid var(--color-border);
   border-radius: 16px;
   padding: 1.5rem;
 }

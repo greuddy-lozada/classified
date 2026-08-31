@@ -16,7 +16,7 @@
           <q-input v-model="alumno.apellidos" outlined label="Apellidos" />
         </div>
         <div class="col-12">
-          <q-btn unelevated type="submit" color="primary" text-color="dark" no-caps label="Registrar alumno" />
+          <q-btn unelevated type="submit" color="primary" no-caps label="Registrar alumno" />
         </div>
       </q-form>
     </div>
@@ -49,7 +49,7 @@
           <q-input v-model="rep.password" outlined type="password" label="Clave" />
         </div>
         <div class="col-12">
-          <q-btn unelevated type="submit" color="primary" text-color="dark" no-caps label="Registrar representante" />
+          <q-btn unelevated type="submit" color="primary" no-caps label="Registrar representante" />
         </div>
       </q-form>
     </div>

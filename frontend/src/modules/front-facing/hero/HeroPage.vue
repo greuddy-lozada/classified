@@ -6,7 +6,8 @@
         <q-btn
           unelevated
           no-caps
-          class="cta"
+          color="primary"
+          text-color="white"
           label="Ingresar"
           to="/login"
           padding="sm lg"
@@ -30,7 +31,9 @@
             unelevated
             no-caps
             size="lg"
-            class="cta q-mb-xl"
+            color="primary"
+            text-color="white"
+            class="q-mb-xl"
             label="Ingresar al plantel"
             to="/login"
             padding="md xl"
@@ -60,10 +63,10 @@ const bloques = [
 
 <style scoped>
 .hero-bar {
-  background: rgba(36, 34, 50, 0.92);
-  color: #f4f1ea;
+  background: var(--color-surface);
+  color: var(--color-fg);
   box-shadow: none;
-  border-bottom: 1px solid rgba(244, 241, 234, 0.08);
+  border-bottom: 1px solid var(--color-border);
 }
 
 .hero-copy {
@@ -72,7 +75,7 @@ const bloques = [
 
 .hero-kicker {
   letter-spacing: 0.12em;
-  color: #63a278;
+  color: var(--color-primary);
 }
 
 .hero-title {
@@ -84,21 +87,16 @@ const bloques = [
 .hero-lead {
   font-size: 1.1rem;
   line-height: 1.55;
-  color: rgba(244, 241, 234, 0.82);
+  color: var(--color-muted);
   margin: 0 0 1.75rem;
 }
 
 .hero-card {
-  background: rgba(244, 241, 234, 0.06);
-  border: 1px solid rgba(244, 241, 234, 0.1);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
   border-radius: 12px;
   padding: 1rem 1.1rem;
   min-height: 5.5rem;
-}
-
-.cta {
-  background: #63a278 !important;
-  color: #242232 !important;
 }
 
 :deep(.q-btn) {
@@ -111,7 +109,7 @@ const bloques = [
 }
 
 :deep(.q-btn:focus-visible) {
-  outline: 3px solid #f4f1ea;
+  outline: 3px solid var(--color-primary);
   outline-offset: 3px;
 }
 </style>

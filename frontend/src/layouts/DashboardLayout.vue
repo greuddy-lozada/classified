@@ -6,7 +6,7 @@
         <q-toolbar-title class="text-weight-bold">Classified</q-toolbar-title>
         <div class="app-header__meta ellipsis">
           <div class="text-caption">{{ plantel }}</div>
-          <div class="text-caption text-grey-4">{{ rolLabel }}</div>
+          <div class="text-caption text-grey-7">{{ rolLabel }}</div>
         </div>
         <q-btn flat no-caps label="Salir" @click="logout" />
       </q-toolbar>
@@ -108,9 +108,14 @@ export default defineComponent({
 
 <style scoped>
 .app-header {
-  background: #333243;
-  color: #f4f1ea;
+  background: var(--color-surface);
+  color: var(--color-fg);
   box-shadow: none;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.app-header :deep(.q-btn) {
+  color: var(--color-fg);
 }
 
 .app-header__meta {
@@ -120,16 +125,20 @@ export default defineComponent({
 }
 
 .app-drawer {
-  background: #2a2838;
-  color: #f4f1ea;
+  background: var(--color-surface);
+  color: var(--color-fg);
 }
 
 .app-drawer__brand {
   padding: 1.25rem 1.15rem 0.75rem;
 }
 
+.app-drawer__brand .text-caption {
+  color: var(--color-muted);
+}
+
 .app-main {
-  background: #f4f1ea;
+  background: var(--color-bg);
   min-height: 100vh;
 }
 </style>

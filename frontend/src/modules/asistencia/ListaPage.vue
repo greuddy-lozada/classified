@@ -15,7 +15,7 @@
           <q-select v-model="materiaId" outlined emit-value map-options :options="materiaOptions" label="Materia" />
         </div>
         <div class="col-12">
-          <q-btn unelevated color="primary" text-color="dark" no-caps label="Cargar lista" @click="cargarLista" />
+          <q-btn unelevated color="primary" no-caps label="Cargar lista" @click="cargarLista" />
         </div>
       </div>
     </div>

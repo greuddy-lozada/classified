@@ -22,7 +22,7 @@
           <q-input v-model="form.admin_password" outlined type="password" label="Clave del admin" />
         </div>
         <div class="col-12">
-          <q-btn unelevated type="submit" color="primary" text-color="dark" no-caps label="Crear plantel" />
+          <q-btn unelevated type="submit" color="primary" no-caps label="Crear plantel" />
         </div>
       </q-form>
     </div>

@@ -54,16 +54,18 @@ export default defineComponent({
 
 <style scoped>
 .app-link {
-  color: rgba(244, 241, 234, 0.82);
+  color: var(--color-fg);
   min-height: 48px;
+  border-radius: 8px;
+  margin: 0 0.5rem;
 }
 
 .app-link :deep(.q-item__label--caption) {
-  color: rgba(244, 241, 234, 0.5);
+  color: var(--color-muted);
 }
 
 .app-link--active {
-  background: rgba(99, 162, 120, 0.22);
-  color: #f4f1ea;
+  background: rgba(15, 107, 76, 0.1);
+  color: var(--color-primary);
 }
 </style>

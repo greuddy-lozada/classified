@@ -7,7 +7,7 @@
           <q-input v-model="nuevoAnio" outlined label="Nombre (ej. 2026-2027)" />
         </div>
         <div class="col-12 col-sm-4">
-          <q-btn unelevated type="submit" color="primary" text-color="dark" no-caps label="Crear año" class="full-width" />
+          <q-btn unelevated type="submit" color="primary" no-caps label="Crear año" class="full-width" />
         </div>
       </q-form>
     </div>
@@ -16,7 +16,7 @@
     <div v-for="anio in anios" :key="anio.id" class="app-card">
       <div class="row items-center q-mb-md">
         <div class="text-subtitle1 text-weight-bold col">{{ anio.nombre }}</div>
-        <q-badge v-if="anio.activo" color="primary" text-color="dark" label="activo" />
+        <q-badge v-if="anio.activo" color="primary" label="activo" />
       </div>
       <div class="row q-col-gutter-sm q-mb-md">
         <div v-for="l in anio.lapsos" :key="l.id" class="col-12 col-sm-4">
@@ -25,7 +25,7 @@
             no-caps
             class="full-width"
             :color="l.cerrado ? 'grey-5' : 'primary'"
-            :text-color="l.cerrado ? 'dark' : 'dark'"
+            :text-color="l.cerrado ? 'dark' : 'white'"
             :label="l.cerrado ? `${l.nombre}: reabrir` : `${l.nombre}: cerrar`"
             @click="l.cerrado ? reabrirLapso(l.id) : cerrarLapso(l.id)"
           />
@@ -42,7 +42,7 @@
           <q-select v-model="formGrado.esquema" outlined emit-value map-options :options="esquemas" label="Esquema" clearable />
         </div>
         <div class="col-12 col-sm-6 col-md-2">
-          <q-btn unelevated type="submit" color="primary" text-color="dark" no-caps label="Grado" class="full-width" />
+          <q-btn unelevated type="submit" color="primary" no-caps label="Grado" class="full-width" />
         </div>
       </q-form>
       <p v-if="!(gradosPorAnio[anio.id] ?? []).length" class="app-empty">Sin grados en este año.</p>

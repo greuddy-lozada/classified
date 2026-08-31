@@ -17,7 +17,7 @@
           />
         </div>
         <div class="col-12">
-          <q-btn unelevated color="primary" text-color="dark" no-caps label="Generar cargos" class="q-mr-sm" @click="generar" />
+          <q-btn unelevated color="primary" no-caps label="Generar cargos" class="q-mr-sm" @click="generar" />
           <q-btn outline no-caps color="primary" label="Actualizar" @click="cargar" />
         </div>
       </div>

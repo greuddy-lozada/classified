@@ -12,7 +12,7 @@
           <q-select v-model="alumnoId" outlined emit-value map-options :options="alumnoOptions" label="Alumno" />
         </div>
         <div class="col-12 col-sm-4">
-          <q-btn unelevated type="submit" color="primary" text-color="dark" no-caps label="Solicitar cupo" class="full-width" />
+          <q-btn unelevated type="submit" color="primary" no-caps label="Solicitar cupo" class="full-width" />
         </div>
       </q-form>
     </div>
@@ -34,7 +34,6 @@
               unelevated
               no-caps
               color="primary"
-              text-color="dark"
               label="Asignar sección"
               @click="asignar(ins.id)"
             />

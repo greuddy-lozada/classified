@@ -7,7 +7,7 @@
           <span v-if="boletin.promedio_final != null"> · final {{ boletin.promedio_final }}</span>
           <q-badge v-if="boletin.necesita_reparacion" color="negative" label="reparación" class="q-ml-sm" />
         </div>
-        <q-btn unelevated no-caps color="primary" text-color="dark" label="Descargar PDF" @click="descargar" />
+        <q-btn unelevated no-caps color="primary" label="Descargar PDF" @click="descargar" />
       </div>
       <div v-for="lapso in boletin.lapsos" :key="lapso.lapso_id" class="q-mb-md">
         <div class="text-subtitle2 text-weight-bold">
