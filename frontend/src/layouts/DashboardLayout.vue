@@ -45,12 +45,14 @@ export default defineComponent({
         return [
           { title: 'Mis pupilos', caption: 'Fichas', icon: 'family_restroom', link: '/dashboard' },
           { title: 'Inscripción', caption: 'Estado y recaudos', icon: 'assignment', link: '/dashboard/mis-inscripciones' },
+          { title: 'Boletín', caption: 'Notas e informe', icon: 'menu_book', link: '/dashboard/mis-inscripciones' },
         ];
       }
       return [
         { title: 'Inicio', caption: 'Plantel', icon: 'school', link: '/dashboard' },
         { title: 'Año escolar', caption: 'Lapsos, grados, secciones', icon: 'event', link: '/dashboard/periodo' },
         { title: 'Inscripciones', caption: 'Cupo y sección', icon: 'how_to_reg', link: '/dashboard/inscripciones' },
+        { title: 'Evaluación', caption: 'Notas e informes', icon: 'grade', link: '/dashboard/evaluacion' },
       ];
     });
     return {

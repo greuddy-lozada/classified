@@ -1,0 +1,61 @@
+<template>
+  <q-page class="q-pa-lg">
+    <div class="text-h5 q-mb-md">Boletín</div>
+    <div v-if="boletin">
+      <div class="text-subtitle1">{{ boletin.alumno_nombres }} {{ boletin.alumno_apellidos }}</div>
+      <div class="text-caption q-mb-md">
+        {{ boletin.esquema }}
+        <span v-if="boletin.promedio_final != null"> · final {{ boletin.promedio_final }}</span>
+        <q-badge v-if="boletin.necesita_reparacion" color="negative" label="reparación" class="q-ml-sm" />
+      </div>
+      <div v-for="lapso in boletin.lapsos" :key="lapso.lapso_id" class="q-mb-md">
+        <div class="text-subtitle2">
+          {{ lapso.lapso_nombre }}
+          <q-badge v-if="lapso.cerrado" color="grey" label="cerrado" />
+          <span v-if="lapso.promedio != null"> · promedio {{ lapso.promedio }}</span>
+        </div>
+        <q-list dense>
+          <q-item v-for="n in lapso.notas" :key="n.materia_id">
+            <q-item-section>{{ n.materia_nombre }}</q-item-section>
+            <q-item-section side>{{ n.valor }}</q-item-section>
+          </q-item>
+          <q-item v-for="i in lapso.informes" :key="i.area">
+            <q-item-section>{{ i.area }} · {{ i.juicio }}</q-item-section>
+            <q-item-section side caption>{{ i.comentario }}</q-item-section>
+          </q-item>
+        </q-list>
+      </div>
+    </div>
+  </q-page>
+</template>
+
+<script setup lang="ts">
+import { onMounted, ref } from 'vue';
+import { useRoute } from 'vue-router';
+import { api } from 'src/boot/axios';
+
+interface Boletin {
+  alumno_nombres: string;
+  alumno_apellidos: string;
+  esquema: string;
+  promedio_final: number | null;
+  necesita_reparacion: boolean;
+  lapsos: {
+    lapso_id: string;
+    lapso_nombre: string;
+    cerrado: boolean;
+    promedio: number | null;
+    notas: { materia_id: string; materia_nombre: string; valor: number }[];
+    informes: { area: string; juicio: string; comentario: string }[];
+  }[];
+}
+
+const route = useRoute();
+const boletin = ref<Boletin | null>(null);
+
+onMounted(async () => {
+  const id = String(route.params.inscripcionId);
+  const { data } = await api.get<Boletin>(`/evaluacion/boletines/${id}`);
+  boletin.value = data;
+});
+</script>

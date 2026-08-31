@@ -10,6 +10,9 @@
             · {{ ins.recaudos_pendientes ? 'faltan recaudos' : 'recaudos al día' }}
           </q-item-label>
         </q-item-section>
+        <q-item-section side>
+          <q-btn dense flat label="Boletín" :to="`/dashboard/boletines/${ins.id}`" />
+        </q-item-section>
       </q-item>
     </q-list>
   </q-page>
