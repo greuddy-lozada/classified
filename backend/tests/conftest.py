@@ -79,6 +79,38 @@ def secretaria(db: Session, org: Organizacion) -> Usuario:
 
 
 @pytest.fixture
+def org_b(db: Session) -> Organizacion:
+    row = Organizacion(id=uuid.uuid4(), nombre="Colegio B", rif="J-222")
+    db.add(row)
+    db.commit()
+    db.refresh(row)
+    return row
+
+
+@pytest.fixture
+def secretaria_b(db: Session, org_b: Organizacion) -> Usuario:
+    user = Usuario(
+        id=uuid.uuid4(),
+        email="secretaria@b.edu",
+        password_hash=hash_password("clave123"),
+        es_plataforma=False,
+    )
+    db.add(user)
+    db.flush()
+    db.add(
+        Membresia(
+            id=uuid.uuid4(),
+            usuario_id=user.id,
+            organizacion_id=org_b.id,
+            rol=Rol.secretaria,
+        )
+    )
+    db.commit()
+    db.refresh(user)
+    return user
+
+
+@pytest.fixture
 def plataforma(db: Session) -> Usuario:
     user = Usuario(
         id=uuid.uuid4(),

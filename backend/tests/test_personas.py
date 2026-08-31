@@ -1,0 +1,53 @@
+from fastapi.testclient import TestClient
+
+from app.models.usuario import Usuario
+
+
+def _auth(client: TestClient, email: str) -> dict[str, str]:
+    login = client.post("/auth/login", json={"email": email, "password": "clave123"}).json()
+    token = login["access_token"]
+    if login["membresias"] and (login.get("membresias")):
+        selected = client.post(
+            "/auth/seleccionar",
+            json={
+                "organizacion_id": login["membresias"][0]["organizacion_id"],
+                "rol": login["membresias"][0]["rol"],
+            },
+            headers={"Authorization": f"Bearer {token}"},
+        )
+        token = selected.json()["access_token"]
+    return {"Authorization": f"Bearer {token}"}
+
+
+def test_crear_alumno_sin_usuario(client: TestClient, secretaria: Usuario) -> None:
+    headers = _auth(client, "secretaria@a.edu")
+    response = client.post(
+        "/personas/alumnos",
+        json={
+            "tipo_doc": "partida",
+            "numero_doc": "PN-001",
+            "nombres": "Mateo",
+            "apellidos": "Rivas",
+        },
+        headers=headers,
+    )
+    assert response.status_code == 201
+    body = response.json()
+    assert body["nombres"] == "Mateo"
+    assert body["es_alumno"] is True
+    assert body["usuario_id"] is None
+
+
+def test_partida_permite_inscripcion_sin_cedula(client: TestClient, secretaria: Usuario) -> None:
+    headers = _auth(client, "secretaria@a.edu")
+    response = client.post(
+        "/personas/alumnos",
+        json={
+            "tipo_doc": "partida",
+            "numero_doc": "PN-002",
+            "nombres": "Eva",
+            "apellidos": "Rivas",
+        },
+        headers=headers,
+    )
+    assert response.status_code == 201
