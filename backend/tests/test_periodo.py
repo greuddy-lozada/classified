@@ -112,3 +112,11 @@ def test_no_usa_grado_de_otro_colegio(
         headers=_auth(client, "secretaria@b.edu"),
     )
     assert stolen.status_code == 404
+
+
+def test_docente_lee_anios(client: TestClient, direccion: Usuario, docente: Usuario) -> None:
+    headers = _auth(client, "dir@a.edu")
+    client.post("/periodo/anios", json={"nombre": "2026-2027"}, headers=headers)
+    listed = client.get("/periodo/anios", headers=_auth(client, "docente@a.edu"))
+    assert listed.status_code == 200
+    assert listed.json()[0]["nombre"] == "2026-2027"

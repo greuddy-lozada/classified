@@ -20,7 +20,7 @@ from app.schemas.periodo import AnioCreate, AnioOut, GradoCreate, GradoOut, Laps
 router = APIRouter(prefix="/periodo", tags=["periodo"])
 
 _WRITE = {"direccion"}
-_READ = {"direccion", "secretaria"}
+_READ = {"direccion", "secretaria", "docente"}
 
 
 def _org_id(current: CurrentUser) -> UUID:

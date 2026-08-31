@@ -56,7 +56,8 @@ def get_inscripciones(
     current: Annotated[CurrentUser, Depends(require_org)],
     anio_escolar_id: UUID | None = None,
 ) -> list[InscripcionOut]:
-    _staff(current)
+    if current.rol not in {"direccion", "secretaria", "docente"}:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="No autorizado")
     return listar(db, _org_id(current), anio_escolar_id)
 
 

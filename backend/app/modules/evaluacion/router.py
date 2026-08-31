@@ -60,7 +60,8 @@ def get_materias(
     db: Annotated[Session, Depends(get_db)],
     current: Annotated[CurrentUser, Depends(require_org)],
 ) -> list[MateriaOut]:
-    _staff(current)
+    if current.rol not in {"direccion", "secretaria", "docente"}:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="No autorizado")
     return listar_materias(db, _org_id(current), grado_id)
 
 
