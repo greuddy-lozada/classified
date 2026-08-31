@@ -2,10 +2,12 @@ from typing import Annotated
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi.responses import Response
 from sqlalchemy.orm import Session
 
 from app.core.deps import CurrentUser, require_org
 from app.db.session import get_db
+from app.modules.evaluacion.pdf import render_boletin_pdf
 from app.modules.evaluacion.service import (
     asignar_docente,
     boletin,
@@ -105,6 +107,21 @@ def post_informe(
         body.area,
         body.juicio,
         body.comentario,
+    )
+
+
+@router.get("/boletines/{inscripcion_id}/pdf")
+def get_boletin_pdf(
+    inscripcion_id: UUID,
+    db: Annotated[Session, Depends(get_db)],
+    current: Annotated[CurrentUser, Depends(require_org)],
+) -> Response:
+    data = boletin(db, current, _org_id(current), inscripcion_id)
+    nombre = "informe.pdf" if data.esquema == "informe" else "boletin.pdf"
+    return Response(
+        content=render_boletin_pdf(data),
+        media_type="application/pdf",
+        headers={"Content-Disposition": f'attachment; filename="{nombre}"'},
     )
 
 
