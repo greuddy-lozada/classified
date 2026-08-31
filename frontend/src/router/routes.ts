@@ -25,6 +25,8 @@ const routes: RouteRecordRaw[] = [
       { path: 'mis-inscripciones', component: () => import('../modules/inscripcion/MisInscripcionesPage.vue') },
       { path: 'evaluacion', component: () => import('../modules/evaluacion/CargaNotasPage.vue') },
       { path: 'boletines/:inscripcionId', component: () => import('../modules/evaluacion/BoletinPage.vue') },
+      { path: 'asistencia', component: () => import('../modules/asistencia/ListaPage.vue') },
+      { path: 'mis-faltas', component: () => import('../modules/asistencia/MisFaltasPage.vue') },
     ],
   },
   {
