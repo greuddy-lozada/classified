@@ -47,6 +47,7 @@ export default defineComponent({
           { title: 'Inscripción', caption: 'Estado y recaudos', icon: 'assignment', link: '/dashboard/mis-inscripciones' },
           { title: 'Boletín', caption: 'Notas e informe', icon: 'menu_book', link: '/dashboard/mis-inscripciones' },
           { title: 'Asistencia', caption: 'Faltas', icon: 'event_available', link: '/dashboard/mis-faltas' },
+          { title: 'Cobro', caption: 'Matrícula y mensualidad', icon: 'payments', link: '/dashboard/mis-cobros' },
         ];
       }
       return [
@@ -55,6 +56,9 @@ export default defineComponent({
         { title: 'Inscripciones', caption: 'Cupo y sección', icon: 'how_to_reg', link: '/dashboard/inscripciones' },
         { title: 'Evaluación', caption: 'Notas e informes', icon: 'grade', link: '/dashboard/evaluacion' },
         { title: 'Asistencia', caption: 'Lista del día', icon: 'event_available', link: '/dashboard/asistencia' },
+        ...(auth.me?.rol === 'docente'
+          ? []
+          : [{ title: 'Cobro', caption: 'Matrícula y mensualidad', icon: 'payments', link: '/dashboard/cobro' }]),
       ];
     });
     return {
