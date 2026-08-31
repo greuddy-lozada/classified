@@ -1,119 +1,158 @@
-<template>  
-  <q-layout view="hHh Lpr lFf" class="window-height">
-    <q-page-container class="full-height texture">
-      <div class="full-height box-border">
-        <div class="row items-stretch full-height">
-          <div class="q-pa-lg col-12 col-md-5 col-lg-5">
-            <div class="bg-primary text-dark q-pa-md full-height rounded-borders">
-              <div class="q-pa-lg">
-                <ButtonBack />
-              </div>
-              <div class="text-center">
-                <h4 class="font-regular">Ingresa</h4>
-              </div>
-              <div class="q-pa-lg">
-                <q-form
-                  @submit.prevent="handleSubmit"
-                  @reset="onReset"
-                  class="q-gutter-md"
-                >
-
-                  <q-input 
-                    outlined 
-                    v-model="email" 
-                    label="Correo" 
-                    lazy-rules
-                    :rules="[ val => val && val.length > 0 || 'Please type something']"
+<template>
+  <q-layout view="hHh Lpr lFf" class="public-shell">
+    <q-page-container>
+      <q-page class="q-pa-lg flex flex-center">
+        <div class="login-grid">
+          <div class="login-panel">
+            <q-btn
+              flat
+              no-caps
+              dense
+              color="dark"
+              icon="arrow_back"
+              label="Inicio"
+              to="/"
+              class="q-mb-md"
+            />
+            <h1 class="text-h5 q-mb-xs">Ingresar</h1>
+            <p class="text-caption text-grey-8 q-mb-lg">Correo y clave de tu plantel o de plataforma.</p>
+            <q-form class="q-gutter-md" @submit.prevent="handleSubmit">
+              <q-input
+                v-model="email"
+                outlined
+                type="email"
+                autocomplete="username"
+                label="Correo"
+                lazy-rules
+                :rules="[(val) => (val && val.length > 0) || 'Escribe tu correo']"
+              />
+              <q-input
+                v-model="password"
+                outlined
+                :type="showPassword ? 'text' : 'password'"
+                autocomplete="current-password"
+                label="Contraseña"
+                lazy-rules
+                :rules="[(val) => (val && val.length > 0) || 'Escribe tu contraseña']"
+              >
+                <template #append>
+                  <q-icon
+                    :name="showPassword ? 'visibility_off' : 'visibility'"
+                    class="cursor-pointer"
+                    :aria-label="showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'"
+                    @click="showPassword = !showPassword"
                   />
-                  <q-input 
-                    outlined 
-                    v-model="password" 
-                    label="Contraseña" 
-                    type="password" 
-                    lazy-rules
-                    :rules="[ val => val && val.length > 0 || 'Please type something']"
-                  />
-
-                  <div class="row">
-                    <q-btn class="col-8 justify-center" label="Submit" type="submit" size="md" color="secondary"/>
-                  </div>
-                </q-form>
-              </div>
-            </div>
+                </template>
+              </q-input>
+              <q-btn
+                unelevated
+                no-caps
+                type="submit"
+                class="cta full-width"
+                label="Entrar"
+                :loading="loading"
+                :disable="loading"
+              />
+            </q-form>
           </div>
-          <div class="col-12 col-md-7 col-lg-7 relative">
-            <div class="row items-center justify-end">
-              <div class="col-12">
-                <img src="../../../assets/math.svg" alt="Mathematics" class="">
-              </div>
-              <div class="absolute inset-y-0 right-0 flex items-center">
-                <div class="text-white q-pa-lg text-right">
-                  <h4 class="font-bold font-condensed">TU <strong class="font-black font-expanded">COLEGIO</strong> A UN <strong class="font-black font-expanded">CLICK</strong></h4>
-                  <p class="text-subtitle2">Tu plataforma integral para el manejo de tu colegio.</p>
-                </div>
-              </div>
-            </div>
+          <div class="login-aside">
+            <p class="text-caption text-uppercase hero-kicker">Classified</p>
+            <h2 class="login-title font-black">Tu colegio a un clic</h2>
+            <p class="login-lead">
+              Dirección, secretaría, docente y representante entran al mismo sistema. Cada plantel
+              queda aislado.
+            </p>
           </div>
         </div>
-      </div>
+      </q-page>
     </q-page-container>
   </q-layout>
 </template>
 
-<script lang="ts">
-import { useQuasar } from 'quasar';
+<script setup lang="ts">
 import { ref } from 'vue';
+import { useQuasar } from 'quasar';
 import { useRouter } from 'vue-router';
-import ButtonBack from 'src/modules/core/utils/ButtonBack.vue';
 import { useAuthStore } from 'src/stores/auth';
 
-export default {
-  components: {
-    ButtonBack,
-  },
-  setup() {
-    const $q = useQuasar();
-    const router = useRouter();
-    const auth = useAuthStore();
-    const email = ref('');
-    const password = ref('');
+const $q = useQuasar();
+const router = useRouter();
+const auth = useAuthStore();
+const email = ref('');
+const password = ref('');
+const showPassword = ref(false);
+const loading = ref(false);
 
-    const handleSubmit = async () => {
-      try {
-        await auth.login(email.value, password.value);
-        if (auth.me?.es_plataforma) {
-          await router.push('/plataforma');
-          return;
-        }
-        if (!auth.me?.organizacion_id || !auth.me?.rol) {
-          await router.push('/seleccionar');
-          return;
-        }
-        await router.push('/dashboard');
-      } catch {
-        $q.notify({ type: 'negative', message: 'Credenciales inválidas', position: 'top' });
-      }
-    };
-
-    const onReset = () => {
-      email.value = '';
-      password.value = '';
-    };
-
-    return {
-      email,
-      password,
-      handleSubmit,
-      onReset,
-    };
-  },
-};
+async function handleSubmit() {
+  loading.value = true;
+  try {
+    await auth.login(email.value, password.value);
+    if (auth.me?.es_plataforma) {
+      await router.push('/plataforma');
+      return;
+    }
+    if (!auth.me?.organizacion_id || !auth.me?.rol) {
+      await router.push('/seleccionar');
+      return;
+    }
+    await router.push('/dashboard');
+  } catch {
+    $q.notify({ type: 'negative', message: 'Correo o contraseña incorrectos', position: 'top' });
+  } finally {
+    loading.value = false;
+  }
+}
 </script>
 
-<style lang="css">
-  .texture {
-    background-color: #63A278;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100%25' height='100%25' %3E%3Cdefs%3E%3ClinearGradient id='a' x1='0' x2='0' y1='0' y2='1'%3E%3Cstop offset='0' stop-color='%23333243'/%3E%3Cstop offset='1' stop-color='%23333243'/%3E%3C/linearGradient%3E%3C/defs%3E%3Cpattern id='b' width='24' height='24' patternUnits='userSpaceOnUse'%3E%3Ccircle fill='%2363A278' cx='12' cy='12' r='12'/%3E%3C/pattern%3E%3Crect width='100%25' height='100%25' fill='url(%23a)'/%3E%3Crect width='100%25' height='100%25' fill='url(%23b)' fill-opacity='0.1'/%3E%3C/svg%3E");
-    background-attachment: fixed;
+<style scoped>
+.login-grid {
+  width: min(960px, 100%);
+  display: grid;
+  gap: 2rem;
+  align-items: center;
+}
+
+@media (min-width: 768px) {
+  .login-grid {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr);
   }
+}
+
+.login-panel {
+  background: #f4f1ea;
+  color: #242232;
+  border-radius: 16px;
+  padding: 1.5rem 1.5rem 1.75rem;
+}
+
+.hero-kicker {
+  letter-spacing: 0.12em;
+  color: #63a278;
+}
+
+.login-title {
+  font-size: clamp(1.8rem, 4vw, 2.6rem);
+  line-height: 1.15;
+  margin: 0 0 0.75rem;
+}
+
+.login-lead {
+  margin: 0;
+  line-height: 1.55;
+  color: rgba(244, 241, 234, 0.82);
+}
+
+.cta {
+  background: #63a278 !important;
+  color: #242232 !important;
+}
+
+:deep(.q-btn) {
+  min-height: 44px;
+}
+
+:deep(.q-btn:focus-visible) {
+  outline: 3px solid #63a278;
+  outline-offset: 3px;
+}
 </style>
