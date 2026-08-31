@@ -13,6 +13,8 @@ from app.modules.evaluacion.service import (
     boletin,
     cargar_informe,
     cargar_nota,
+    actualizar_materia,
+    borrar_materia,
     crear_materia,
     listar_materias,
 )
@@ -24,6 +26,7 @@ from app.schemas.evaluacion import (
     InformeOut,
     MateriaCreate,
     MateriaOut,
+    MateriaUpdate,
     NotaIn,
     NotaOut,
 )
@@ -63,6 +66,27 @@ def get_materias(
     if current.rol not in {"direccion", "secretaria", "docente"}:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="No autorizado")
     return listar_materias(db, _org_id(current), grado_id)
+
+
+@router.patch("/materias/{materia_id}", response_model=MateriaOut)
+def patch_materia(
+    materia_id: UUID,
+    body: MateriaUpdate,
+    db: Annotated[Session, Depends(get_db)],
+    current: Annotated[CurrentUser, Depends(require_org)],
+) -> MateriaOut:
+    _staff(current)
+    return actualizar_materia(db, _org_id(current), materia_id, body.nombre)
+
+
+@router.delete("/materias/{materia_id}", status_code=status.HTTP_204_NO_CONTENT)
+def delete_materia(
+    materia_id: UUID,
+    db: Annotated[Session, Depends(get_db)],
+    current: Annotated[CurrentUser, Depends(require_org)],
+) -> None:
+    _staff(current)
+    borrar_materia(db, _org_id(current), materia_id)
 
 
 @router.post("/asignaciones", response_model=AsignacionOut, status_code=status.HTTP_201_CREATED)

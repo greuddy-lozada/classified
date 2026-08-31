@@ -213,6 +213,62 @@ def test_informe_inicial(client: TestClient, direccion: Usuario, secretaria: Usu
     assert boletin.json()["lapsos"][0]["informes"][0]["area"] == "lenguaje"
 
 
+def test_materia_crud(client: TestClient, direccion: Usuario, secretaria: Usuario, docente: Usuario) -> None:
+    ctx = _media_inscrito(client)
+    listed = client.get(f"/evaluacion/materias?grado_id={ctx['grado']['id']}", headers=ctx["dir"])
+    assert listed.status_code == 200
+    assert listed.json()[0]["nombre"] == "Matemática"
+    renamed = client.patch(
+        f"/evaluacion/materias/{ctx['materia']['id']}",
+        json={"nombre": "Matemática I"},
+        headers=ctx["sec"],
+    )
+    assert renamed.status_code == 200
+    assert renamed.json()["nombre"] == "Matemática I"
+    extra = client.post(
+        "/evaluacion/materias",
+        json={"grado_id": ctx["grado"]["id"], "nombre": "Castellano"},
+        headers=ctx["dir"],
+    )
+    assert extra.status_code == 201
+    gone = client.delete(f"/evaluacion/materias/{extra.json()['id']}", headers=ctx["dir"])
+    assert gone.status_code == 204
+    forbidden = client.patch(
+        f"/evaluacion/materias/{ctx['materia']['id']}",
+        json={"nombre": "Física"},
+        headers=_auth(client, "docente@a.edu"),
+    )
+    assert forbidden.status_code == 403
+
+
+def test_no_borra_materia_con_nota(client: TestClient, direccion: Usuario, secretaria: Usuario) -> None:
+    ctx = _media_inscrito(client)
+    client.post(
+        "/evaluacion/notas",
+        json={
+            "inscripcion_id": ctx["ins"]["id"],
+            "lapso_id": ctx["lapso_id"],
+            "materia_id": ctx["materia"]["id"],
+            "valor": 15,
+        },
+        headers=ctx["dir"],
+    )
+    blocked = client.delete(f"/evaluacion/materias/{ctx['materia']['id']}", headers=ctx["dir"])
+    assert blocked.status_code == 409
+
+
+def test_colegio_b_no_edita_materia(
+    client: TestClient, direccion: Usuario, secretaria: Usuario, secretaria_b: Usuario
+) -> None:
+    ctx = _media_inscrito(client)
+    stolen = client.patch(
+        f"/evaluacion/materias/{ctx['materia']['id']}",
+        json={"nombre": "Robada"},
+        headers=_auth(client, "secretaria@b.edu"),
+    )
+    assert stolen.status_code == 404
+
+
 def test_colegio_b_no_ve_boletin(
     client: TestClient, direccion: Usuario, secretaria: Usuario, secretaria_b: Usuario
 ) -> None:

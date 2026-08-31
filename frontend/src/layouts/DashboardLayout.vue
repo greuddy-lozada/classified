@@ -79,6 +79,7 @@ export default defineComponent({
         { title: 'Inicio', caption: 'Plantel', icon: 'school', link: '/dashboard', exact: true },
         { title: 'Fichas', caption: 'Alumnos y representantes', icon: 'badge', link: '/dashboard/fichas' },
         { title: 'Año escolar', caption: 'Lapsos, grados, secciones', icon: 'event', link: '/dashboard/periodo' },
+        { title: 'Materias', caption: 'Pensum por grado', icon: 'menu_book', link: '/dashboard/materias' },
         { title: 'Inscripciones', caption: 'Cupo y sección', icon: 'how_to_reg', link: '/dashboard/inscripciones' },
         { title: 'Evaluación', caption: 'Notas e informes', icon: 'grade', link: '/dashboard/evaluacion' },
         { title: 'Asistencia', caption: 'Lista del día', icon: 'event_available', link: '/dashboard/asistencia' },

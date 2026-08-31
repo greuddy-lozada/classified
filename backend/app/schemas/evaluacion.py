@@ -10,6 +10,10 @@ class MateriaCreate(BaseModel):
     nombre: str = Field(min_length=1, max_length=80)
 
 
+class MateriaUpdate(BaseModel):
+    nombre: str = Field(min_length=1, max_length=80)
+
+
 class MateriaOut(BaseModel):
     id: UUID
     grado_id: UUID

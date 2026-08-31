@@ -31,16 +31,10 @@
     <div v-if="esquema === 'numerico'" class="app-card">
       <h2 class="app-card__title">Nota</h2>
       <q-form class="row q-col-gutter-md" @submit.prevent="cargarNota">
-        <div class="col-12 col-md-5">
+        <div class="col-12 col-sm-8">
           <q-select v-model="materiaId" outlined emit-value map-options :options="materiaOptions" label="Materia" />
         </div>
-        <div class="col-12 col-sm-6 col-md-3">
-          <q-input v-model="nuevaMateria" outlined label="Nueva materia" />
-        </div>
-        <div class="col-12 col-sm-6 col-md-2">
-          <q-btn outline no-caps color="primary" label="Crear" class="full-width" @click="crearMateria" />
-        </div>
-        <div class="col-12 col-md-2">
+        <div class="col-12 col-sm-4">
           <q-input v-model.number="valor" outlined type="number" label="Nota 1–20" />
         </div>
         <div class="col-12">
@@ -111,7 +105,6 @@ const seccionId = ref<string | null>(null);
 const inscripcionId = ref<string | null>(null);
 const lapsoId = ref<string | null>(null);
 const materiaId = ref<string | null>(null);
-const nuevaMateria = ref('');
 const valor = ref(10);
 const area = ref('lenguaje');
 const juicio = ref('en_proceso');
@@ -172,17 +165,6 @@ async function cargarMaterias() {
   const { data } = await api.get<Materia[]>('/evaluacion/materias', { params: { grado_id: gradoActual.value.id } });
   materias.value = data;
   if (data[0]) materiaId.value = data[0].id;
-}
-
-async function crearMateria() {
-  if (!gradoActual.value || !nuevaMateria.value) return;
-  try {
-    await api.post('/evaluacion/materias', { grado_id: gradoActual.value.id, nombre: nuevaMateria.value });
-    nuevaMateria.value = '';
-    await cargarMaterias();
-  } catch {
-    $q.notify({ type: 'negative', message: 'No se pudo crear la materia' });
-  }
 }
 
 async function cargarNota() {

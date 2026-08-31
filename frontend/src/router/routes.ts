@@ -24,6 +24,7 @@ const routes: RouteRecordRaw[] = [
       { path: 'periodo', component: () => import('../modules/periodo/PeriodoPage.vue') },
       { path: 'inscripciones', component: () => import('../modules/inscripcion/InscripcionPage.vue') },
       { path: 'mis-inscripciones', component: () => import('../modules/inscripcion/MisInscripcionesPage.vue') },
+      { path: 'materias', component: () => import('../modules/evaluacion/MateriasPage.vue') },
       { path: 'evaluacion', component: () => import('../modules/evaluacion/CargaNotasPage.vue') },
       { path: 'boletines/:inscripcionId', component: () => import('../modules/evaluacion/BoletinPage.vue') },
       { path: 'asistencia', component: () => import('../modules/asistencia/ListaPage.vue') },

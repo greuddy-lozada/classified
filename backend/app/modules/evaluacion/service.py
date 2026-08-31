@@ -7,6 +7,7 @@ from app.core.deps import CurrentUser
 from app.models.alumno import Alumno
 from app.models.anio_escolar import AnioEscolar
 from app.models.asignacion import AsignacionDocente
+from app.models.asistencia import Asistencia
 from app.models.enums import AreaInforme, EsquemaEvaluacion, EstadoInscripcion, Juicio
 from app.models.grado import Grado
 from app.models.informe import InformeItem
@@ -38,6 +39,7 @@ def crear_materia(db: Session, org_id: UUID, grado_id: UUID, nombre: str) -> Mat
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Grado no existe")
     if grado.esquema_evaluacion != EsquemaEvaluacion.numerico:
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="El grado no usa notas")
+    nombre = nombre.strip()
     dup = db.query(Materia).filter(Materia.grado_id == grado.id, Materia.nombre == nombre).first()
     if dup:
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Materia ya existe")
@@ -54,6 +56,41 @@ def listar_materias(db: Session, org_id: UUID, grado_id: UUID) -> list[MateriaOu
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Grado no existe")
     rows = db.query(Materia).filter(Materia.grado_id == grado.id, Materia.organizacion_id == org_id).all()
     return [_materia_out(m) for m in rows]
+
+
+def _materia_del_plantel(db: Session, org_id: UUID, materia_id: UUID) -> Materia:
+    row = db.query(Materia).filter(Materia.id == materia_id, Materia.organizacion_id == org_id).first()
+    if row is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Materia no existe")
+    return row
+
+
+def actualizar_materia(db: Session, org_id: UUID, materia_id: UUID, nombre: str) -> MateriaOut:
+    row = _materia_del_plantel(db, org_id, materia_id)
+    nombre = nombre.strip()
+    dup = (
+        db.query(Materia)
+        .filter(Materia.grado_id == row.grado_id, Materia.nombre == nombre, Materia.id != row.id)
+        .first()
+    )
+    if dup:
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Materia ya existe")
+    row.nombre = nombre
+    db.commit()
+    db.refresh(row)
+    return _materia_out(row)
+
+
+def borrar_materia(db: Session, org_id: UUID, materia_id: UUID) -> None:
+    row = _materia_del_plantel(db, org_id, materia_id)
+    if db.query(Nota).filter(Nota.materia_id == row.id).first():
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="La materia tiene notas")
+    if db.query(Asistencia).filter(Asistencia.materia_id == row.id).first():
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="La materia tiene asistencia")
+    if db.query(AsignacionDocente).filter(AsignacionDocente.materia_id == row.id).first():
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="La materia tiene asignación")
+    db.delete(row)
+    db.commit()
 
 
 def asignar_docente(
