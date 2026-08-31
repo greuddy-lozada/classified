@@ -15,9 +15,13 @@ from app.models import (  # noqa: F401
     Alumno,
     AnioEscolar,
     Grado,
+    AsignacionDocente,
+    InformeItem,
     Inscripcion,
     Lapso,
+    Materia,
     Membresia,
+    Nota,
     Organizacion,
     Persona,
     Recaudo,
@@ -140,6 +144,29 @@ def direccion(db: Session, org: Organizacion) -> Usuario:
             usuario_id=user.id,
             organizacion_id=org.id,
             rol=Rol.direccion,
+        )
+    )
+    db.commit()
+    db.refresh(user)
+    return user
+
+
+@pytest.fixture
+def docente(db: Session, org: Organizacion) -> Usuario:
+    user = Usuario(
+        id=uuid.uuid4(),
+        email="docente@a.edu",
+        password_hash=hash_password("clave123"),
+        es_plataforma=False,
+    )
+    db.add(user)
+    db.flush()
+    db.add(
+        Membresia(
+            id=uuid.uuid4(),
+            usuario_id=user.id,
+            organizacion_id=org.id,
+            rol=Rol.docente,
         )
     )
     db.commit()

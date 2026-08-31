@@ -5,21 +5,7 @@ from sqlalchemy import engine_from_config, pool
 
 from app.core.config import settings
 from app.db.base import Base
-from app.models import (  # noqa: F401
-    Alumno,
-    AnioEscolar,
-    Grado,
-    Inscripcion,
-    Lapso,
-    Membresia,
-    Organizacion,
-    Persona,
-    Recaudo,
-    Seccion,
-    Trabajador,
-    Usuario,
-    VinculoRepresentante,
-)
+from app.models import *  # noqa: F401,F403
 
 config = context.config
 config.set_main_option("sqlalchemy.url", settings.database_url)

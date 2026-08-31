@@ -6,8 +6,16 @@ from sqlalchemy.orm import Session
 
 from app.core.deps import CurrentUser, require_org
 from app.db.session import get_db
-from app.modules.periodo.service import crear_anio, crear_grado, crear_seccion, listar_anios, listar_grados
-from app.schemas.periodo import AnioCreate, AnioOut, GradoCreate, GradoOut, SeccionCreate, SeccionOut
+from app.modules.periodo.service import (
+    cerrar_lapso,
+    crear_anio,
+    crear_grado,
+    crear_seccion,
+    listar_anios,
+    listar_grados,
+    reabrir_lapso,
+)
+from app.schemas.periodo import AnioCreate, AnioOut, GradoCreate, GradoOut, LapsoOut, SeccionCreate, SeccionOut
 
 router = APIRouter(prefix="/periodo", tags=["periodo"])
 
@@ -85,3 +93,23 @@ def post_seccion(
 ) -> SeccionOut:
     _require_write(current)
     return crear_seccion(db, _org_id(current), body.grado_id, body.letra, body.turno)
+
+
+@router.post("/lapsos/{lapso_id}/cerrar", response_model=LapsoOut)
+def post_cerrar_lapso(
+    lapso_id: UUID,
+    db: Annotated[Session, Depends(get_db)],
+    current: Annotated[CurrentUser, Depends(require_org)],
+) -> LapsoOut:
+    _require_write(current)
+    return cerrar_lapso(db, _org_id(current), lapso_id)
+
+
+@router.post("/lapsos/{lapso_id}/reabrir", response_model=LapsoOut)
+def post_reabrir_lapso(
+    lapso_id: UUID,
+    db: Annotated[Session, Depends(get_db)],
+    current: Annotated[CurrentUser, Depends(require_org)],
+) -> LapsoOut:
+    _require_write(current)
+    return reabrir_lapso(db, _org_id(current), lapso_id)

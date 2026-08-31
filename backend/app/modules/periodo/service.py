@@ -172,3 +172,33 @@ def crear_seccion(db: Session, org_id: UUID, grado_id: UUID, letra: str, turno: 
     db.commit()
     db.refresh(seccion)
     return _seccion_out(seccion)
+
+
+def _lapso_del_plantel(db: Session, org_id: UUID, lapso_id: UUID) -> Lapso:
+    lapso = db.get(Lapso, lapso_id)
+    if lapso is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Lapso no existe")
+    anio = (
+        db.query(AnioEscolar)
+        .filter(AnioEscolar.id == lapso.anio_escolar_id, AnioEscolar.organizacion_id == org_id)
+        .first()
+    )
+    if anio is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Lapso no existe")
+    return lapso
+
+
+def cerrar_lapso(db: Session, org_id: UUID, lapso_id: UUID) -> LapsoOut:
+    lapso = _lapso_del_plantel(db, org_id, lapso_id)
+    lapso.cerrado = True
+    db.commit()
+    db.refresh(lapso)
+    return _lapso_out(lapso)
+
+
+def reabrir_lapso(db: Session, org_id: UUID, lapso_id: UUID) -> LapsoOut:
+    lapso = _lapso_del_plantel(db, org_id, lapso_id)
+    lapso.cerrado = False
+    db.commit()
+    db.refresh(lapso)
+    return _lapso_out(lapso)

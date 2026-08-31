@@ -63,3 +63,16 @@ class TipoRecaudo(str, Enum):
 class EstadoRecaudo(str, Enum):
     faltante = "faltante"
     entregado = "entregado"
+
+
+class AreaInforme(str, Enum):
+    lenguaje = "lenguaje"
+    socioemocional = "socioemocional"
+    psicomotor = "psicomotor"
+    exploracion = "exploracion"
+
+
+class Juicio(str, Enum):
+    logrado = "logrado"
+    en_proceso = "en_proceso"
+    iniciado = "iniciado"

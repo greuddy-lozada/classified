@@ -3,6 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from app.core.config import settings
 from app.db.session import SessionLocal
+from app.modules.evaluacion.router import router as evaluacion_router
 from app.modules.identidad.router import router as identidad_router
 from app.modules.identidad.seed import seed_if_empty
 from app.modules.inscripcion.router import router as inscripcion_router
@@ -17,6 +18,7 @@ app.include_router(plataforma_router)
 app.include_router(personas_router)
 app.include_router(periodo_router)
 app.include_router(inscripcion_router)
+app.include_router(evaluacion_router)
 
 app.add_middleware(
     CORSMiddleware,
