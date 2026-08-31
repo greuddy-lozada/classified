@@ -47,3 +47,11 @@ def test_plataforma_crea_colegio_y_admin(client: TestClient, plataforma: Usuario
     listed = client.get("/plataforma/organizaciones", headers={"Authorization": f"Bearer {token}"})
     assert listed.status_code == 200
     assert listed.json()[0]["nombre"] == "Colegio B"
+    patched = client.patch(
+        f"/plataforma/organizaciones/{body['id']}",
+        json={"nombre": "Colegio B Norte", "rif": "J-333"},
+        headers={"Authorization": f"Bearer {token}"},
+    )
+    assert patched.status_code == 200
+    assert patched.json()["nombre"] == "Colegio B Norte"
+    assert patched.json()["rif"] == "J-333"

@@ -35,6 +35,9 @@
             <q-item-label>{{ o.nombre }}</q-item-label>
             <q-item-label caption>{{ o.rif || 'Sin RIF' }}</q-item-label>
           </q-item-section>
+          <q-item-section side>
+            <q-btn flat no-caps color="primary" label="Editar" @click="editar(o)" />
+          </q-item-section>
         </q-item>
       </q-list>
     </div>
@@ -82,6 +85,29 @@ async function crear() {
   } catch {
     $q.notify({ type: 'negative', message: 'No se pudo crear el plantel' });
   }
+}
+
+function editar(o: Org) {
+  $q.dialog({
+    title: 'Editar plantel',
+    prompt: { model: o.nombre, type: 'text', label: 'Nombre' },
+    cancel: { flat: true, noCaps: true, label: 'Cancelar' },
+    ok: { unelevated: true, noCaps: true, color: 'primary', label: 'Siguiente' },
+  }).onOk((nombre: string) => {
+    $q.dialog({
+      title: 'RIF',
+      prompt: { model: o.rif ?? '', type: 'text', label: 'RIF' },
+      cancel: { flat: true, noCaps: true, label: 'Cancelar' },
+      ok: { unelevated: true, noCaps: true, color: 'primary', label: 'Guardar' },
+    }).onOk(async (rif: string) => {
+      try {
+        await api.patch(`/plataforma/organizaciones/${o.id}`, { nombre: nombre.trim(), rif: rif.trim() || null });
+        await cargar();
+      } catch {
+        $q.notify({ type: 'negative', message: 'No se pudo editar el plantel' });
+      }
+    });
+  });
 }
 
 onMounted(cargar);

@@ -1,5 +1,5 @@
 from typing import Annotated
-from uuid import uuid4
+from uuid import UUID, uuid4
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
@@ -13,7 +13,12 @@ from app.models.organizacion import Organizacion
 from app.models.persona import Persona
 from app.models.trabajador import Trabajador
 from app.models.usuario import Usuario
-from app.schemas.plataforma import OrganizacionCreate, OrganizacionListaOut, OrganizacionOut
+from app.schemas.plataforma import (
+    OrganizacionCreate,
+    OrganizacionListaOut,
+    OrganizacionOut,
+    OrganizacionPatch,
+)
 
 router = APIRouter(prefix="/plataforma", tags=["plataforma"])
 
@@ -68,3 +73,22 @@ def crear_organizacion(
     )
     db.commit()
     return OrganizacionOut(id=org.id, nombre=org.nombre, rif=org.rif, admin_usuario_id=admin.id)
+
+
+@router.patch("/organizaciones/{organizacion_id}", response_model=OrganizacionListaOut)
+def patch_organizacion(
+    organizacion_id: UUID,
+    body: OrganizacionPatch,
+    db: Annotated[Session, Depends(get_db)],
+    current: Annotated[CurrentUser, Depends(get_current_user)],
+) -> Organizacion:
+    if not current.es_plataforma:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Solo plataforma")
+    org = db.get(Organizacion, organizacion_id)
+    if org is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Plantel no existe")
+    org.nombre = body.nombre.strip()
+    org.rif = body.rif.strip() if body.rif else None
+    db.commit()
+    db.refresh(org)
+    return org

@@ -17,6 +17,13 @@ class PersonaCreate(BaseModel):
     direccion: str | None = None
 
 
+class PersonaUpdate(BaseModel):
+    tipo_doc: TipoDoc
+    numero_doc: str
+    nombres: str
+    apellidos: str
+
+
 class PersonaOut(BaseModel):
     id: UUID
     organizacion_id: UUID

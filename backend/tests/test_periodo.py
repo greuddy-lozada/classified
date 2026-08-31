@@ -114,6 +114,33 @@ def test_no_usa_grado_de_otro_colegio(
     assert stolen.status_code == 404
 
 
+def test_renombra_y_borra_catalogo_vacio(client: TestClient, direccion: Usuario) -> None:
+    headers = _auth(client, "dir@a.edu")
+    anio = client.post("/periodo/anios", json={"nombre": "2026-2027"}, headers=headers).json()
+    renamed = client.patch(f"/periodo/anios/{anio['id']}", json={"nombre": "2027-2028"}, headers=headers)
+    assert renamed.status_code == 200
+    assert renamed.json()["nombre"] == "2027-2028"
+    grado = client.post(
+        "/periodo/grados",
+        json={"anio_escolar_id": anio["id"], "nivel": "media", "nombre": "1er año"},
+        headers=headers,
+    ).json()
+    client.patch(f"/periodo/grados/{grado['id']}", json={"nombre": "2° año"}, headers=headers)
+    seccion = client.post(
+        "/periodo/secciones",
+        json={"grado_id": grado["id"], "letra": "A", "turno": "manana"},
+        headers=headers,
+    ).json()
+    blocked_grado = client.delete(f"/periodo/grados/{grado['id']}", headers=headers)
+    assert blocked_grado.status_code == 409
+    gone_sec = client.delete(f"/periodo/secciones/{seccion['id']}", headers=headers)
+    assert gone_sec.status_code == 204
+    gone_grado = client.delete(f"/periodo/grados/{grado['id']}", headers=headers)
+    assert gone_grado.status_code == 204
+    gone_anio = client.delete(f"/periodo/anios/{anio['id']}", headers=headers)
+    assert gone_anio.status_code == 204
+
+
 def test_docente_lee_anios(client: TestClient, direccion: Usuario, docente: Usuario) -> None:
     headers = _auth(client, "dir@a.edu")
     client.post("/periodo/anios", json={"nombre": "2026-2027"}, headers=headers)

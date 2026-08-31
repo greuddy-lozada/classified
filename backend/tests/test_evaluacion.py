@@ -213,6 +213,34 @@ def test_informe_inicial(client: TestClient, direccion: Usuario, secretaria: Usu
     assert boletin.json()["lapsos"][0]["informes"][0]["area"] == "lenguaje"
 
 
+def test_asignacion_docente_lista_y_borra(
+    client: TestClient, direccion: Usuario, secretaria: Usuario, docente: Usuario
+) -> None:
+    ctx = _media_inscrito(client)
+    created = client.post(
+        "/evaluacion/asignaciones",
+        json={
+            "usuario_id": str(docente.id),
+            "seccion_id": ctx["seccion"]["id"],
+            "materia_id": ctx["materia"]["id"],
+        },
+        headers=ctx["dir"],
+    )
+    assert created.status_code == 201
+    assert created.json()["usuario_email"] == "docente@a.edu"
+    listed = client.get(
+        f"/evaluacion/asignaciones?seccion_id={ctx['seccion']['id']}",
+        headers=ctx["dir"],
+    )
+    assert listed.status_code == 200
+    assert listed.json()[0]["materia_nombre"] == "Matemática"
+    docs = client.get("/evaluacion/docentes", headers=ctx["dir"])
+    assert docs.status_code == 200
+    assert docs.json()[0]["email"] == "docente@a.edu"
+    gone = client.delete(f"/evaluacion/asignaciones/{created.json()['id']}", headers=ctx["dir"])
+    assert gone.status_code == 204
+
+
 def test_materia_crud(client: TestClient, direccion: Usuario, secretaria: Usuario, docente: Usuario) -> None:
     ctx = _media_inscrito(client)
     listed = client.get(f"/evaluacion/materias?grado_id={ctx['grado']['id']}", headers=ctx["dir"])

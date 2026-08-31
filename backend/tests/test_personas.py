@@ -38,6 +38,26 @@ def test_crear_alumno_sin_usuario(client: TestClient, secretaria: Usuario) -> No
     assert body["usuario_id"] is None
 
 
+def test_edita_y_borra_alumno_sin_cupo(client: TestClient, secretaria: Usuario) -> None:
+    headers = _auth(client, "secretaria@a.edu")
+    created = client.post(
+        "/personas/alumnos",
+        json={"tipo_doc": "partida", "numero_doc": "PN-010", "nombres": "Mia", "apellidos": "Gil"},
+        headers=headers,
+    )
+    assert created.status_code == 201
+    patched = client.patch(
+        f"/personas/{created.json()['id']}",
+        json={"tipo_doc": "partida", "numero_doc": "PN-011", "nombres": "Mia", "apellidos": "Rivas"},
+        headers=headers,
+    )
+    assert patched.status_code == 200
+    assert patched.json()["apellidos"] == "Rivas"
+    assert patched.json()["numero_doc"] == "PN-011"
+    gone = client.delete(f"/personas/{created.json()['id']}", headers=headers)
+    assert gone.status_code == 204
+
+
 def test_partida_permite_inscripcion_sin_cedula(client: TestClient, secretaria: Usuario) -> None:
     headers = _auth(client, "secretaria@a.edu")
     response = client.post(

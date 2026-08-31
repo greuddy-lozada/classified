@@ -19,7 +19,13 @@ class OrganizacionOut(BaseModel):
     admin_usuario_id: UUID
 
 
+class OrganizacionPatch(BaseModel):
+    nombre: str
+    rif: str | None = None
+
+
 class OrganizacionListaOut(BaseModel):
     id: UUID
     nombre: str
     rif: str | None
+    activo: bool

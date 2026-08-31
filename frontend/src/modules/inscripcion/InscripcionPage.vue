@@ -1,5 +1,5 @@
 <template>
-  <AppPage title="Inscripciones" subtitle="Pide cupo y asigna sección cuando haya representante principal.">
+  <AppPage title="Inscripciones" subtitle="Cupo, sección, recaudos y retiro. Activa para que salga en la lista.">
     <div class="app-card">
       <q-form class="row q-col-gutter-md" @submit.prevent="solicitarCupo">
         <div class="col-12 col-sm-6">
@@ -20,24 +20,55 @@
       <h2 class="app-card__title">Lista</h2>
       <p v-if="!lista.length" class="app-empty">No hay inscripciones en este año.</p>
       <q-list v-else separator>
-        <q-item v-for="ins in lista" :key="ins.id">
-          <q-item-section>
-            <q-item-label>{{ ins.alumno_nombres }} {{ ins.alumno_apellidos }}</q-item-label>
-            <q-item-label caption>
-              {{ etiquetaEstado(ins.estado) }} · matrícula {{ ins.estado_matricula }}
-              · {{ ins.recaudos_pendientes ? 'faltan recaudos' : 'recaudos al día' }}
-            </q-item-label>
-          </q-item-section>
-          <q-item-section side>
+        <q-item v-for="ins in lista" :key="ins.id" class="column items-stretch q-py-md">
+          <div class="row items-center">
+            <q-item-section>
+              <q-item-label>{{ ins.alumno_nombres }} {{ ins.alumno_apellidos }}</q-item-label>
+              <q-item-label caption>
+                {{ etiquetaEstado(ins.estado) }} · matrícula {{ etiquetaPago(ins.estado_matricula) }}
+              </q-item-label>
+            </q-item-section>
+            <q-item-section side>
+              <q-btn
+                v-if="ins.estado === 'preinscrito'"
+                unelevated
+                no-caps
+                color="primary"
+                label="Asignar sección"
+                @click="asignar(ins.id)"
+              />
+              <q-btn
+                v-if="ins.estado === 'inscrito'"
+                unelevated
+                no-caps
+                color="primary"
+                label="Activar"
+                @click="activar(ins.id)"
+              />
+              <q-btn
+                v-if="ins.estado !== 'retirado'"
+                flat
+                no-caps
+                color="negative"
+                label="Retirar"
+                @click="retirar(ins.id)"
+              />
+            </q-item-section>
+          </div>
+          <div class="q-gutter-xs q-mt-sm">
             <q-btn
-              v-if="ins.estado === 'preinscrito'"
+              v-for="r in ins.recaudos"
+              :key="r.tipo"
               unelevated
               no-caps
-              color="primary"
-              label="Asignar sección"
-              @click="asignar(ins.id)"
+              size="sm"
+              :color="r.estado === 'entregado' ? 'primary' : 'grey-5'"
+              :text-color="r.estado === 'entregado' ? 'white' : 'dark'"
+              :label="etiquetaRecaudo(r.tipo)"
+              :disable="ins.estado === 'retirado'"
+              @click="toggleRecaudo(ins.id, r)"
             />
-          </q-item-section>
+          </div>
         </q-item>
       </q-list>
     </div>
@@ -59,6 +90,19 @@ function etiquetaEstado(v: string) {
   };
   return map[v] ?? v;
 }
+function etiquetaPago(v: string) {
+  const map: Record<string, string> = { pendiente: 'pendiente', pagada: 'pagada', morosa: 'morosa' };
+  return map[v] ?? v;
+}
+function etiquetaRecaudo(v: string) {
+  const map: Record<string, string> = {
+    partida: 'Partida',
+    fotos: 'Fotos',
+    cedula_representante: 'Cédula representante',
+    cedula_alumno: 'Cédula alumno',
+  };
+  return map[v] ?? v;
+}
 
 interface Anio {
   id: string;
@@ -76,12 +120,17 @@ interface Persona {
   apellidos: string;
   es_alumno: boolean;
 }
+interface Recaudo {
+  tipo: string;
+  estado: string;
+}
 interface Inscripcion {
   id: string;
   alumno_nombres: string;
   alumno_apellidos: string;
   estado: string;
   estado_matricula: string;
+  recaudos: Recaudo[];
   recaudos_pendientes: boolean;
 }
 
@@ -151,6 +200,34 @@ async function asignar(id: string) {
         ? (err as { response?: { data?: { detail?: string } } }).response?.data?.detail
         : undefined;
     $q.notify({ type: 'negative', message: detail ?? 'No se pudo asignar sección' });
+  }
+}
+
+async function activar(id: string) {
+  try {
+    await api.post(`/inscripciones/${id}/activar`);
+    await cargar();
+  } catch {
+    $q.notify({ type: 'negative', message: 'Debe estar inscrito en una sección' });
+  }
+}
+
+async function retirar(id: string) {
+  try {
+    await api.post(`/inscripciones/${id}/retirar`);
+    await cargar();
+  } catch {
+    $q.notify({ type: 'negative', message: 'No se pudo retirar' });
+  }
+}
+
+async function toggleRecaudo(id: string, r: Recaudo) {
+  const estado = r.estado === 'entregado' ? 'faltante' : 'entregado';
+  try {
+    await api.patch(`/inscripciones/${id}/recaudos`, { tipo: r.tipo, estado });
+    await cargar();
+  } catch {
+    $q.notify({ type: 'negative', message: 'No se pudo marcar el recaudo' });
   }
 }
 

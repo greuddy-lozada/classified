@@ -29,8 +29,15 @@ class AsignacionCreate(BaseModel):
 class AsignacionOut(BaseModel):
     id: UUID
     usuario_id: UUID
+    usuario_email: str
     seccion_id: UUID
     materia_id: UUID | None
+    materia_nombre: str | None = None
+
+
+class DocenteOut(BaseModel):
+    usuario_id: UUID
+    email: str
 
 
 class NotaIn(BaseModel):

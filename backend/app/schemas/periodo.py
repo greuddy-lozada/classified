@@ -9,6 +9,19 @@ class AnioCreate(BaseModel):
     nombre: str = Field(min_length=4, max_length=32)
 
 
+class AnioUpdate(BaseModel):
+    nombre: str = Field(min_length=4, max_length=32)
+
+
+class GradoUpdate(BaseModel):
+    nombre: str = Field(min_length=1, max_length=40)
+
+
+class SeccionUpdate(BaseModel):
+    letra: str = Field(min_length=1, max_length=8)
+    turno: Turno
+
+
 class LapsoOut(BaseModel):
     id: UUID
     numero: int

@@ -8,19 +8,22 @@ from app.models.alumno import Alumno
 from app.models.anio_escolar import AnioEscolar
 from app.models.asignacion import AsignacionDocente
 from app.models.asistencia import Asistencia
-from app.models.enums import AreaInforme, EsquemaEvaluacion, EstadoInscripcion, Juicio
+from app.models.enums import AreaInforme, EsquemaEvaluacion, EstadoInscripcion, Juicio, Rol
 from app.models.grado import Grado
 from app.models.informe import InformeItem
 from app.models.inscripcion import Inscripcion
 from app.models.lapso import Lapso
 from app.models.materia import Materia
+from app.models.membresia import Membresia
 from app.models.nota import Nota
 from app.models.persona import Persona
 from app.models.seccion import Seccion
+from app.models.usuario import Usuario
 from app.schemas.evaluacion import (
     AsignacionOut,
     BoletinLapsoOut,
     BoletinOut,
+    DocenteOut,
     InformeOut,
     MateriaOut,
     NotaOut,
@@ -93,12 +96,36 @@ def borrar_materia(db: Session, org_id: UUID, materia_id: UUID) -> None:
     db.commit()
 
 
+def _asignacion_out(db: Session, row: AsignacionDocente) -> AsignacionOut:
+    user = db.get(Usuario, row.usuario_id)
+    materia = db.get(Materia, row.materia_id) if row.materia_id else None
+    return AsignacionOut(
+        id=row.id,
+        usuario_id=row.usuario_id,
+        usuario_email=user.email if user else "",
+        seccion_id=row.seccion_id,
+        materia_id=row.materia_id,
+        materia_nombre=materia.nombre if materia else None,
+    )
+
+
 def asignar_docente(
     db: Session, org_id: UUID, usuario_id: UUID, seccion_id: UUID, materia_id: UUID | None
 ) -> AsignacionOut:
     seccion = db.query(Seccion).filter(Seccion.id == seccion_id, Seccion.organizacion_id == org_id).first()
     if seccion is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Sección no existe")
+    membresia = (
+        db.query(Membresia)
+        .filter(
+            Membresia.usuario_id == usuario_id,
+            Membresia.organizacion_id == org_id,
+            Membresia.rol == Rol.docente,
+        )
+        .first()
+    )
+    if membresia is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Docente no existe")
     if materia_id is not None:
         materia = db.query(Materia).filter(Materia.id == materia_id, Materia.organizacion_id == org_id).first()
         if materia is None or materia.grado_id != seccion.grado_id:
@@ -113,12 +140,41 @@ def asignar_docente(
     db.add(row)
     db.commit()
     db.refresh(row)
-    return AsignacionOut(
-        id=row.id,
-        usuario_id=row.usuario_id,
-        seccion_id=row.seccion_id,
-        materia_id=row.materia_id,
+    return _asignacion_out(db, row)
+
+
+def listar_asignaciones(db: Session, org_id: UUID, seccion_id: UUID) -> list[AsignacionOut]:
+    seccion = db.query(Seccion).filter(Seccion.id == seccion_id, Seccion.organizacion_id == org_id).first()
+    if seccion is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Sección no existe")
+    rows = (
+        db.query(AsignacionDocente)
+        .filter(AsignacionDocente.organizacion_id == org_id, AsignacionDocente.seccion_id == seccion.id)
+        .all()
     )
+    return [_asignacion_out(db, r) for r in rows]
+
+
+def borrar_asignacion(db: Session, org_id: UUID, asignacion_id: UUID) -> None:
+    row = (
+        db.query(AsignacionDocente)
+        .filter(AsignacionDocente.id == asignacion_id, AsignacionDocente.organizacion_id == org_id)
+        .first()
+    )
+    if row is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Asignación no existe")
+    db.delete(row)
+    db.commit()
+
+
+def listar_docentes(db: Session, org_id: UUID) -> list[DocenteOut]:
+    rows = (
+        db.query(Membresia, Usuario)
+        .join(Usuario, Usuario.id == Membresia.usuario_id)
+        .filter(Membresia.organizacion_id == org_id, Membresia.rol == Rol.docente)
+        .all()
+    )
+    return [DocenteOut(usuario_id=u.id, email=u.email) for _m, u in rows]
 
 
 def _inscripcion_activa(db: Session, org_id: UUID, inscripcion_id: UUID) -> Inscripcion:

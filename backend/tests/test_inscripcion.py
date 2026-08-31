@@ -138,6 +138,47 @@ def test_colegio_b_no_ve_inscripcion_de_a(
     assert listed.json() == []
 
 
+def test_activar_retirar_y_recaudo(client: TestClient, direccion: Usuario, secretaria: Usuario) -> None:
+    sec_headers, anio_id, seccion_id = _abrir_seccion(client)
+    alumno = _alumno(client, sec_headers, "PN-26", "Sol")
+    client.post(
+        "/personas/representantes",
+        json={
+            "tipo_doc": "cedula_v",
+            "numero_doc": "16555444",
+            "nombres": "Ana",
+            "apellidos": "Gil",
+            "email": "ana-ins@mail.com",
+            "password": "clave123",
+            "alumno_id": alumno["alumno_id"],
+            "parentesco": "madre",
+            "es_principal": True,
+        },
+        headers=sec_headers,
+    )
+    ins = client.post(
+        "/inscripciones",
+        json={"alumno_id": alumno["alumno_id"], "anio_escolar_id": anio_id},
+        headers=sec_headers,
+    ).json()
+    client.post(f"/inscripciones/{ins['id']}/seccion", json={"seccion_id": seccion_id}, headers=sec_headers)
+    recaudo = client.patch(
+        f"/inscripciones/{ins['id']}/recaudos",
+        json={"tipo": "partida", "estado": "entregado"},
+        headers=sec_headers,
+    )
+    assert recaudo.status_code == 200
+    assert recaudo.json()["recaudos_pendientes"] is True
+    assert any(r["tipo"] == "partida" and r["estado"] == "entregado" for r in recaudo.json()["recaudos"])
+    too_soon = client.post(f"/inscripciones/{ins['id']}/activar", headers=sec_headers)
+    # already inscrito with seccion — activar should work
+    assert too_soon.status_code == 200
+    assert too_soon.json()["estado"] == "activo"
+    withdrawn = client.post(f"/inscripciones/{ins['id']}/retirar", headers=sec_headers)
+    assert withdrawn.status_code == 200
+    assert withdrawn.json()["estado"] == "retirado"
+
+
 def test_representante_no_asigna_seccion(
     client: TestClient, direccion: Usuario, secretaria: Usuario
 ) -> None:

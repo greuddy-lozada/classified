@@ -6,8 +6,16 @@ from sqlalchemy.orm import Session
 
 from app.core.deps import CurrentUser, require_org
 from app.db.session import get_db
-from app.modules.personas.service import crear_alumno, crear_representante, listar, mis_pupilos, obtener
-from app.schemas.persona import PersonaCreate, PersonaOut, RepresentanteCreate
+from app.modules.personas.service import (
+    actualizar_persona,
+    borrar_persona,
+    crear_alumno,
+    crear_representante,
+    listar,
+    mis_pupilos,
+    obtener,
+)
+from app.schemas.persona import PersonaCreate, PersonaOut, PersonaUpdate, RepresentanteCreate
 
 router = APIRouter(prefix="/personas", tags=["personas"])
 
@@ -67,3 +75,32 @@ def get_persona(
 ) -> PersonaOut:
     _staff(current)
     return obtener(db, current.org_id, persona_id)
+
+
+@router.patch("/{persona_id}", response_model=PersonaOut)
+def patch_persona(
+    persona_id: UUID,
+    body: PersonaUpdate,
+    db: Annotated[Session, Depends(get_db)],
+    current: Annotated[CurrentUser, Depends(require_org)],
+) -> PersonaOut:
+    _staff(current)
+    return actualizar_persona(
+        db,
+        current.org_id,
+        persona_id,
+        body.tipo_doc,
+        body.numero_doc,
+        body.nombres,
+        body.apellidos,
+    )
+
+
+@router.delete("/{persona_id}", status_code=status.HTTP_204_NO_CONTENT)
+def delete_persona(
+    persona_id: UUID,
+    db: Annotated[Session, Depends(get_db)],
+    current: Annotated[CurrentUser, Depends(require_org)],
+) -> None:
+    _staff(current)
+    borrar_persona(db, current.org_id, persona_id)

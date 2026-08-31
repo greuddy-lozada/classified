@@ -6,6 +6,7 @@ from sqlalchemy.orm import Session
 from app.core.security import hash_password
 from app.models.alumno import Alumno
 from app.models.enums import Parentesco, Rol, TipoDoc
+from app.models.inscripcion import Inscripcion
 from app.models.membresia import Membresia
 from app.models.persona import Persona
 from app.models.usuario import Usuario
@@ -86,6 +87,65 @@ def obtener(db: Session, org_id: UUID, persona_id: UUID) -> PersonaOut:
     if persona is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="No encontrada")
     return _out(persona)
+
+
+def _persona_del_plantel(db: Session, org_id: UUID, persona_id: UUID) -> Persona:
+    persona = (
+        db.query(Persona)
+        .filter(Persona.id == persona_id, Persona.organizacion_id == org_id)
+        .first()
+    )
+    if persona is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="No encontrada")
+    return persona
+
+
+def actualizar_persona(
+    db: Session,
+    org_id: UUID,
+    persona_id: UUID,
+    tipo_doc: TipoDoc,
+    numero_doc: str,
+    nombres: str,
+    apellidos: str,
+) -> PersonaOut:
+    persona = _persona_del_plantel(db, org_id, persona_id)
+    dup = (
+        db.query(Persona)
+        .filter(
+            Persona.organizacion_id == org_id,
+            Persona.tipo_doc == tipo_doc,
+            Persona.numero_doc == numero_doc,
+            Persona.id != persona.id,
+        )
+        .first()
+    )
+    if dup:
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Documento ya existe")
+    persona.tipo_doc = tipo_doc
+    persona.numero_doc = numero_doc.strip()
+    persona.nombres = nombres.strip()
+    persona.apellidos = apellidos.strip()
+    db.commit()
+    db.refresh(persona)
+    return _out(persona)
+
+
+def borrar_persona(db: Session, org_id: UUID, persona_id: UUID) -> None:
+    persona = _persona_del_plantel(db, org_id, persona_id)
+    if persona.alumno is not None:
+        if db.query(Inscripcion).filter(Inscripcion.alumno_id == persona.alumno.id).first():
+            raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="El alumno tiene inscripción")
+        for v in db.query(VinculoRepresentante).filter(VinculoRepresentante.alumno_id == persona.alumno.id):
+            db.delete(v)
+        db.delete(persona.alumno)
+    else:
+        for v in db.query(VinculoRepresentante).filter(
+            VinculoRepresentante.representante_persona_id == persona.id
+        ):
+            db.delete(v)
+    db.delete(persona)
+    db.commit()
 
 
 def crear_representante(
