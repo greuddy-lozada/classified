@@ -1,6 +1,8 @@
 <template>
   <q-item
     clickable
+    class="app-link"
+    :class="{ 'app-link--active': isActive }"
     :tag="link.startsWith('/') ? 'router-link' : 'a'"
     :to="link.startsWith('/') ? link : undefined"
     :href="link.startsWith('/') ? undefined : link"
@@ -18,37 +20,50 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from 'vue';
+import { computed, defineComponent } from 'vue';
+import { useRoute } from 'vue-router';
 
 export interface DashLinkProps {
   title: string;
   caption?: string;
   link?: string;
   icon?: string;
+  exact?: boolean;
 }
 
 export default defineComponent({
   name: 'DashLink',
   props: {
-    title: {
-      type: String,
-      required: true,
-    },
-
-    caption: {
-      type: String,
-      default: '',
-    },
-
-    link: {
-      type: String,
-      default: '#',
-    },
-
-    icon: {
-      type: String,
-      default: '',
-    },
+    title: { type: String, required: true },
+    caption: { type: String, default: '' },
+    link: { type: String, default: '#' },
+    icon: { type: String, default: '' },
+    exact: { type: Boolean, default: false },
+  },
+  setup(props) {
+    const route = useRoute();
+    const isActive = computed(() => {
+      if (!props.link.startsWith('/')) return false;
+      if (props.exact) return route.path === props.link;
+      return route.path === props.link || route.path.startsWith(`${props.link}/`);
+    });
+    return { isActive };
   },
 });
 </script>
+
+<style scoped>
+.app-link {
+  color: rgba(244, 241, 234, 0.82);
+  min-height: 48px;
+}
+
+.app-link :deep(.q-item__label--caption) {
+  color: rgba(244, 241, 234, 0.5);
+}
+
+.app-link--active {
+  background: rgba(99, 162, 120, 0.22);
+  color: #f4f1ea;
+}
+</style>

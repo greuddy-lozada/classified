@@ -1,23 +1,21 @@
 <template>
-  <q-page class="q-pa-lg">
-    <div class="row items-center q-mb-md">
-      <div class="text-h5 col">Boletín</div>
-      <q-btn v-if="boletin" color="primary" label="Descargar PDF" @click="descargar" />
-    </div>
-    <div v-if="boletin">
-      <div class="text-subtitle1">{{ boletin.alumno_nombres }} {{ boletin.alumno_apellidos }}</div>
-      <div class="text-caption q-mb-md">
-        {{ boletin.esquema }}
-        <span v-if="boletin.promedio_final != null"> · final {{ boletin.promedio_final }}</span>
-        <q-badge v-if="boletin.necesita_reparacion" color="negative" label="reparación" class="q-ml-sm" />
+  <AppPage title="Boletín" :subtitle="boletin ? `${boletin.alumno_nombres} ${boletin.alumno_apellidos}` : 'Cargando…'">
+    <div class="app-card" v-if="boletin">
+      <div class="row items-center q-mb-md">
+        <div class="col text-caption">
+          {{ boletin.esquema === 'informe' ? 'Informe descriptivo' : 'Calificaciones' }}
+          <span v-if="boletin.promedio_final != null"> · final {{ boletin.promedio_final }}</span>
+          <q-badge v-if="boletin.necesita_reparacion" color="negative" label="reparación" class="q-ml-sm" />
+        </div>
+        <q-btn unelevated no-caps color="primary" text-color="dark" label="Descargar PDF" @click="descargar" />
       </div>
       <div v-for="lapso in boletin.lapsos" :key="lapso.lapso_id" class="q-mb-md">
-        <div class="text-subtitle2">
+        <div class="text-subtitle2 text-weight-bold">
           {{ lapso.lapso_nombre }}
-          <q-badge v-if="lapso.cerrado" color="grey" label="cerrado" />
-          <span v-if="lapso.promedio != null"> · promedio {{ lapso.promedio }}</span>
+          <q-badge v-if="lapso.cerrado" color="grey" text-color="dark" label="cerrado" class="q-ml-sm" />
+          <span v-if="lapso.promedio != null" class="text-caption"> · promedio {{ lapso.promedio }}</span>
         </div>
-        <q-list dense>
+        <q-list separator>
           <q-item v-for="n in lapso.notas" :key="n.materia_id">
             <q-item-section>{{ n.materia_nombre }}</q-item-section>
             <q-item-section side>{{ n.valor }}</q-item-section>
@@ -29,13 +27,14 @@
         </q-list>
       </div>
     </div>
-  </q-page>
+  </AppPage>
 </template>
 
 <script setup lang="ts">
 import { onMounted, ref } from 'vue';
 import { useRoute } from 'vue-router';
 import { api } from 'src/boot/axios';
+import AppPage from '../dashboard/AppPage.vue';
 
 interface Boletin {
   alumno_nombres: string;

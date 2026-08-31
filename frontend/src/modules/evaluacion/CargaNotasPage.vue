@@ -1,70 +1,79 @@
 <template>
-  <q-page class="q-pa-lg">
-    <div class="text-h5 q-mb-md">Carga de evaluación</div>
-    <div class="row q-col-gutter-sm q-mb-md">
-      <div class="col-4">
-        <q-select v-model="anioId" outlined dense emit-value map-options :options="anioOptions" label="Año" />
-      </div>
-      <div class="col-4">
-        <q-select v-model="seccionId" outlined dense emit-value map-options :options="seccionOptions" label="Sección" />
-      </div>
-      <div class="col-4">
-        <q-select v-model="lapsoId" outlined dense emit-value map-options :options="lapsoOptions" label="Lapso" />
-      </div>
-      <div class="col-8">
-        <q-select v-model="inscripcionId" outlined dense emit-value map-options :options="alumnoOptions" label="Alumno" />
-      </div>
-      <div class="col-4">
-        <q-btn
-          v-if="inscripcionId"
-          outline
-          color="primary"
-          label="Ver boletín"
-          class="full-width"
-          :to="`/dashboard/boletines/${inscripcionId}`"
-        />
+  <AppPage title="Evaluación" subtitle="Carga nota 1–20 o el informe descriptivo, según el grado.">
+    <div class="app-card">
+      <div class="row q-col-gutter-md">
+        <div class="col-12 col-sm-4">
+          <q-select v-model="anioId" outlined emit-value map-options :options="anioOptions" label="Año" />
+        </div>
+        <div class="col-12 col-sm-4">
+          <q-select v-model="seccionId" outlined emit-value map-options :options="seccionOptions" label="Sección" />
+        </div>
+        <div class="col-12 col-sm-4">
+          <q-select v-model="lapsoId" outlined emit-value map-options :options="lapsoOptions" label="Lapso" />
+        </div>
+        <div class="col-12 col-sm-8">
+          <q-select v-model="inscripcionId" outlined emit-value map-options :options="alumnoOptions" label="Alumno" />
+        </div>
+        <div class="col-12 col-sm-4">
+          <q-btn
+            v-if="inscripcionId"
+            outline
+            no-caps
+            color="primary"
+            label="Ver boletín"
+            class="full-width"
+            :to="`/dashboard/boletines/${inscripcionId}`"
+          />
+        </div>
       </div>
     </div>
 
-    <q-form v-if="esquema === 'numerico'" class="row q-col-gutter-sm q-mb-md" @submit.prevent="cargarNota">
-      <div class="col-5">
-        <q-select v-model="materiaId" outlined dense emit-value map-options :options="materiaOptions" label="Materia" />
-      </div>
-      <div class="col-3">
-        <q-input v-model="nuevaMateria" outlined dense label="Nueva materia" />
-      </div>
-      <div class="col-2">
-        <q-btn outline color="secondary" label="Crear" class="full-width" @click="crearMateria" />
-      </div>
-      <div class="col-2">
-        <q-input v-model.number="valor" outlined dense type="number" label="Nota 1-20" />
-      </div>
-      <div class="col-12">
-        <q-btn type="submit" color="primary" label="Guardar nota" />
-      </div>
-    </q-form>
+    <div v-if="esquema === 'numerico'" class="app-card">
+      <h2 class="app-card__title">Nota</h2>
+      <q-form class="row q-col-gutter-md" @submit.prevent="cargarNota">
+        <div class="col-12 col-md-5">
+          <q-select v-model="materiaId" outlined emit-value map-options :options="materiaOptions" label="Materia" />
+        </div>
+        <div class="col-12 col-sm-6 col-md-3">
+          <q-input v-model="nuevaMateria" outlined label="Nueva materia" />
+        </div>
+        <div class="col-12 col-sm-6 col-md-2">
+          <q-btn outline no-caps color="primary" label="Crear" class="full-width" @click="crearMateria" />
+        </div>
+        <div class="col-12 col-md-2">
+          <q-input v-model.number="valor" outlined type="number" label="Nota 1–20" />
+        </div>
+        <div class="col-12">
+          <q-btn unelevated type="submit" color="primary" text-color="dark" no-caps label="Guardar nota" />
+        </div>
+      </q-form>
+    </div>
 
-    <q-form v-else-if="esquema === 'informe'" class="row q-col-gutter-sm" @submit.prevent="cargarInforme">
-      <div class="col-4">
-        <q-select v-model="area" outlined dense :options="areas" label="Área" />
-      </div>
-      <div class="col-4">
-        <q-select v-model="juicio" outlined dense :options="juicios" label="Juicio" />
-      </div>
-      <div class="col-4">
-        <q-input v-model="comentario" outlined dense label="Comentario" />
-      </div>
-      <div class="col-12">
-        <q-btn type="submit" color="secondary" label="Guardar informe" />
-      </div>
-    </q-form>
-  </q-page>
+    <div v-else-if="esquema === 'informe'" class="app-card">
+      <h2 class="app-card__title">Informe</h2>
+      <q-form class="row q-col-gutter-md" @submit.prevent="cargarInforme">
+        <div class="col-12 col-sm-4">
+          <q-select v-model="area" outlined emit-value map-options :options="areas" label="Área" />
+        </div>
+        <div class="col-12 col-sm-4">
+          <q-select v-model="juicio" outlined emit-value map-options :options="juicios" label="Juicio" />
+        </div>
+        <div class="col-12 col-sm-4">
+          <q-input v-model="comentario" outlined label="Comentario" />
+        </div>
+        <div class="col-12">
+          <q-btn unelevated type="submit" color="primary" text-color="dark" no-caps label="Guardar informe" />
+        </div>
+      </q-form>
+    </div>
+  </AppPage>
 </template>
 
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue';
 import { useQuasar } from 'quasar';
 import { api } from 'src/boot/axios';
+import AppPage from '../dashboard/AppPage.vue';
 
 interface Lapso {
   id: string;
@@ -107,8 +116,17 @@ const valor = ref(10);
 const area = ref('lenguaje');
 const juicio = ref('en_proceso');
 const comentario = ref('');
-const areas = ['lenguaje', 'socioemocional', 'psicomotor', 'exploracion'];
-const juicios = ['logrado', 'en_proceso', 'iniciado'];
+const areas = [
+  { label: 'Lenguaje', value: 'lenguaje' },
+  { label: 'Socioemocional', value: 'socioemocional' },
+  { label: 'Psicomotor', value: 'psicomotor' },
+  { label: 'Exploración', value: 'exploracion' },
+];
+const juicios = [
+  { label: 'Logrado', value: 'logrado' },
+  { label: 'En proceso', value: 'en_proceso' },
+  { label: 'Iniciado', value: 'iniciado' },
+];
 
 const anioOptions = computed(() => anios.value.map((a) => ({ label: a.nombre, value: a.id })));
 const anioActual = computed(() => anios.value.find((a) => a.id === anioId.value));

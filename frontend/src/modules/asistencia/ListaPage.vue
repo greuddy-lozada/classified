@@ -1,46 +1,51 @@
 <template>
-  <q-page class="q-pa-lg">
-    <div class="text-h5 q-mb-md">Asistencia</div>
-    <div class="row q-col-gutter-sm q-mb-md">
-      <div class="col-4">
-        <q-select v-model="anioId" outlined dense emit-value map-options :options="anioOptions" label="Año" />
-      </div>
-      <div class="col-4">
-        <q-select v-model="seccionId" outlined dense emit-value map-options :options="seccionOptions" label="Sección" />
-      </div>
-      <div class="col-4">
-        <q-input v-model="fecha" outlined dense type="date" label="Fecha" />
-      </div>
-      <div v-if="esquema === 'numerico'" class="col-6">
-        <q-select v-model="materiaId" outlined dense emit-value map-options :options="materiaOptions" label="Materia" />
-      </div>
-      <div class="col-12">
-        <q-btn color="primary" label="Cargar lista" @click="cargarLista" />
+  <AppPage title="Asistencia" subtitle="Marca presente, ausente, justificado o tardanza.">
+    <div class="app-card">
+      <div class="row q-col-gutter-md">
+        <div class="col-12 col-sm-4">
+          <q-select v-model="anioId" outlined emit-value map-options :options="anioOptions" label="Año" />
+        </div>
+        <div class="col-12 col-sm-4">
+          <q-select v-model="seccionId" outlined emit-value map-options :options="seccionOptions" label="Sección" />
+        </div>
+        <div class="col-12 col-sm-4">
+          <q-input v-model="fecha" outlined type="date" label="Fecha" />
+        </div>
+        <div v-if="esquema === 'numerico'" class="col-12 col-sm-6">
+          <q-select v-model="materiaId" outlined emit-value map-options :options="materiaOptions" label="Materia" />
+        </div>
+        <div class="col-12">
+          <q-btn unelevated color="primary" text-color="dark" no-caps label="Cargar lista" @click="cargarLista" />
+        </div>
       </div>
     </div>
-    <q-list bordered separator>
-      <q-item v-for="item in lista" :key="item.inscripcion_id">
-        <q-item-section>
-          {{ item.alumno_nombres }} {{ item.alumno_apellidos }}
-        </q-item-section>
-        <q-item-section side>
-          <q-btn-toggle
-            :model-value="item.estado"
-            unelevated
-            dense
-            :options="estados"
-            @update:model-value="(v) => marcar(item.inscripcion_id, v)"
-          />
-        </q-item-section>
-      </q-item>
-    </q-list>
-  </q-page>
+    <div class="app-card">
+      <p v-if="!lista.length" class="app-empty">Carga la lista del día para marcar asistencia.</p>
+      <q-list v-else separator>
+        <q-item v-for="item in lista" :key="item.inscripcion_id" class="q-py-md">
+          <q-item-section>
+            {{ item.alumno_nombres }} {{ item.alumno_apellidos }}
+          </q-item-section>
+          <q-item-section side>
+            <q-btn-toggle
+              :model-value="item.estado"
+              unelevated
+              spread
+              :options="estados"
+              @update:model-value="(v) => marcar(item.inscripcion_id, v)"
+            />
+          </q-item-section>
+        </q-item>
+      </q-list>
+    </div>
+  </AppPage>
 </template>
 
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue';
 import { useQuasar } from 'quasar';
 import { api } from 'src/boot/axios';
+import AppPage from '../dashboard/AppPage.vue';
 
 interface Anio {
   id: string;

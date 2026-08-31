@@ -111,3 +111,57 @@
     transition: none !important;
   }
 }
+
+body.body--dashboard {
+  background: #f4f1ea;
+}
+
+.app-page {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 1.5rem 1.25rem 2.5rem;
+  color: #242232;
+}
+
+.app-page__title {
+  font-size: clamp(1.5rem, 3vw, 1.9rem);
+  font-weight: 800;
+  line-height: 1.2;
+  margin: 0 0 0.35rem;
+}
+
+.app-page__sub {
+  margin: 0 0 1.25rem;
+  color: rgba(36, 34, 50, 0.65);
+  line-height: 1.5;
+}
+
+.app-card {
+  background: #fff;
+  border: 1px solid rgba(36, 34, 50, 0.08);
+  border-radius: 14px;
+  padding: 1.15rem 1.2rem 1.25rem;
+  margin-bottom: 1rem;
+}
+
+.app-card__title {
+  font-size: 0.95rem;
+  font-weight: 700;
+  margin: 0 0 0.85rem;
+}
+
+.app-empty {
+  padding: 1.25rem 0.25rem;
+  color: rgba(36, 34, 50, 0.55);
+  line-height: 1.5;
+}
+
+.app-page .q-btn {
+  min-height: 44px;
+  cursor: pointer;
+}
+
+.app-page .q-btn:focus-visible {
+  outline: 3px solid #63a278;
+  outline-offset: 2px;
+}

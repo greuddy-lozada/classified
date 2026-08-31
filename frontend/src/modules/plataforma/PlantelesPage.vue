@@ -1,44 +1,51 @@
 <template>
-  <q-page class="q-pa-lg">
-    <div class="text-h5 q-mb-md">Alta de planteles</div>
-    <q-form class="row q-col-gutter-sm q-mb-lg" @submit.prevent="crear">
-      <div class="col-6">
-        <q-input v-model="form.nombre" outlined dense label="Nombre del colegio" />
-      </div>
-      <div class="col-6">
-        <q-input v-model="form.rif" outlined dense label="RIF" />
-      </div>
-      <div class="col-4">
-        <q-input v-model="form.admin_nombres" outlined dense label="Admin nombres" />
-      </div>
-      <div class="col-4">
-        <q-input v-model="form.admin_apellidos" outlined dense label="Admin apellidos" />
-      </div>
-      <div class="col-4">
-        <q-input v-model="form.admin_email" outlined dense type="email" label="Admin email" />
-      </div>
-      <div class="col-4">
-        <q-input v-model="form.admin_password" outlined dense type="password" label="Admin clave" />
-      </div>
-      <div class="col-8">
-        <q-btn type="submit" color="primary" label="Crear plantel" />
-      </div>
-    </q-form>
-    <q-list bordered separator>
-      <q-item v-for="o in lista" :key="o.id">
-        <q-item-section>
-          <q-item-label>{{ o.nombre }}</q-item-label>
-          <q-item-label caption>{{ o.rif || 'sin RIF' }}</q-item-label>
-        </q-item-section>
-      </q-item>
-    </q-list>
-  </q-page>
+  <AppPage title="Planteles" subtitle="Crea el colegio y el primer usuario de dirección.">
+    <div class="app-card">
+      <h2 class="app-card__title">Nuevo plantel</h2>
+      <q-form class="row q-col-gutter-md" @submit.prevent="crear">
+        <div class="col-12 col-sm-6">
+          <q-input v-model="form.nombre" outlined label="Nombre del colegio" />
+        </div>
+        <div class="col-12 col-sm-6">
+          <q-input v-model="form.rif" outlined label="RIF" />
+        </div>
+        <div class="col-12 col-sm-6">
+          <q-input v-model="form.admin_nombres" outlined label="Nombres del admin" />
+        </div>
+        <div class="col-12 col-sm-6">
+          <q-input v-model="form.admin_apellidos" outlined label="Apellidos del admin" />
+        </div>
+        <div class="col-12 col-sm-6">
+          <q-input v-model="form.admin_email" outlined type="email" label="Correo del admin" />
+        </div>
+        <div class="col-12 col-sm-6">
+          <q-input v-model="form.admin_password" outlined type="password" label="Clave del admin" />
+        </div>
+        <div class="col-12">
+          <q-btn unelevated type="submit" color="primary" text-color="dark" no-caps label="Crear plantel" />
+        </div>
+      </q-form>
+    </div>
+    <div class="app-card">
+      <h2 class="app-card__title">Colegios</h2>
+      <p v-if="!lista.length" class="app-empty">Aún no hay planteles.</p>
+      <q-list v-else separator>
+        <q-item v-for="o in lista" :key="o.id">
+          <q-item-section>
+            <q-item-label>{{ o.nombre }}</q-item-label>
+            <q-item-label caption>{{ o.rif || 'Sin RIF' }}</q-item-label>
+          </q-item-section>
+        </q-item>
+      </q-list>
+    </div>
+  </AppPage>
 </template>
 
 <script setup lang="ts">
 import { onMounted, reactive, ref } from 'vue';
 import { useQuasar } from 'quasar';
 import { api } from 'src/boot/axios';
+import AppPage from '../dashboard/AppPage.vue';
 
 interface Org {
   id: string;

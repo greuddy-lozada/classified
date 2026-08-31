@@ -1,23 +1,26 @@
 <template>
-  <q-page class="q-pa-lg">
-    <div class="text-h5 q-mb-md">Matrícula y mensualidades</div>
-    <q-list bordered separator>
-      <q-item v-for="c in lista" :key="c.id">
-        <q-item-section>
-          <q-item-label>{{ c.alumno_nombres }} {{ c.alumno_apellidos }}</q-item-label>
-          <q-item-label caption>
-            {{ c.concepto }} · {{ c.estado }}
-            <span v-if="c.nota"> · {{ c.nota }}</span>
-          </q-item-label>
-        </q-item-section>
-      </q-item>
-    </q-list>
-  </q-page>
+  <AppPage title="Cobro" subtitle="Matrícula y mensualidades de tus pupilos.">
+    <div class="app-card">
+      <p v-if="!lista.length" class="app-empty">No hay cargos cargados todavía.</p>
+      <q-list v-else separator>
+        <q-item v-for="c in lista" :key="c.id">
+          <q-item-section>
+            <q-item-label>{{ c.alumno_nombres }} {{ c.alumno_apellidos }}</q-item-label>
+            <q-item-label caption>
+              {{ c.concepto }} · {{ c.estado }}
+              <span v-if="c.nota"> · {{ c.nota }}</span>
+            </q-item-label>
+          </q-item-section>
+        </q-item>
+      </q-list>
+    </div>
+  </AppPage>
 </template>
 
 <script setup lang="ts">
 import { onMounted, ref } from 'vue';
 import { api } from 'src/boot/axios';
+import AppPage from '../dashboard/AppPage.vue';
 
 interface Cargo {
   id: string;

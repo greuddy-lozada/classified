@@ -1,60 +1,65 @@
 <template>
-  <q-page class="q-pa-lg">
-    <div class="text-h5 q-mb-md">Inscripciones</div>
-
-    <div class="row q-col-gutter-sm q-mb-md">
-      <div class="col-6">
-        <q-select v-model="anioId" outlined dense :options="anioOptions" label="Año escolar" emit-value map-options />
-      </div>
-      <div class="col-6">
-        <q-select v-model="seccionId" outlined dense :options="seccionOptions" label="Sección a asignar" emit-value map-options />
-      </div>
+  <AppPage title="Inscripciones" subtitle="Pide cupo y asigna sección cuando haya representante principal.">
+    <div class="app-card">
+      <q-form class="row q-col-gutter-md" @submit.prevent="solicitarCupo">
+        <div class="col-12 col-sm-6">
+          <q-select v-model="anioId" outlined emit-value map-options :options="anioOptions" label="Año escolar" />
+        </div>
+        <div class="col-12 col-sm-6">
+          <q-select v-model="seccionId" outlined emit-value map-options :options="seccionOptions" label="Sección a asignar" />
+        </div>
+        <div class="col-12 col-sm-8">
+          <q-select v-model="alumnoId" outlined emit-value map-options :options="alumnoOptions" label="Alumno" />
+        </div>
+        <div class="col-12 col-sm-4">
+          <q-btn unelevated type="submit" color="primary" text-color="dark" no-caps label="Solicitar cupo" class="full-width" />
+        </div>
+      </q-form>
     </div>
-
-    <q-form class="row q-col-gutter-sm q-mb-lg" @submit.prevent="solicitarCupo">
-      <div class="col-8">
-        <q-select
-          v-model="alumnoId"
-          outlined
-          dense
-          :options="alumnoOptions"
-          label="Alumno (ficha)"
-          emit-value
-          map-options
-        />
-      </div>
-      <div class="col-4">
-        <q-btn type="submit" color="primary" label="Solicitar cupo" class="full-width" />
-      </div>
-    </q-form>
-
-    <q-list bordered separator>
-      <q-item v-for="ins in lista" :key="ins.id">
-        <q-item-section>
-          <q-item-label>{{ ins.alumno_nombres }} {{ ins.alumno_apellidos }}</q-item-label>
-          <q-item-label caption>
-            {{ ins.estado }} · matrícula {{ ins.estado_matricula }}
-            · {{ ins.recaudos_pendientes ? 'recaudos pendientes' : 'recaudos ok' }}
-          </q-item-label>
-        </q-item-section>
-        <q-item-section side>
-          <q-btn
-            v-if="ins.estado === 'preinscrito'"
-            dense
-            flat
-            label="Asignar sección"
-            @click="asignar(ins.id)"
-          />
-        </q-item-section>
-      </q-item>
-    </q-list>
-  </q-page>
+    <div class="app-card">
+      <h2 class="app-card__title">Lista</h2>
+      <p v-if="!lista.length" class="app-empty">No hay inscripciones en este año.</p>
+      <q-list v-else separator>
+        <q-item v-for="ins in lista" :key="ins.id">
+          <q-item-section>
+            <q-item-label>{{ ins.alumno_nombres }} {{ ins.alumno_apellidos }}</q-item-label>
+            <q-item-label caption>
+              {{ etiquetaEstado(ins.estado) }} · matrícula {{ ins.estado_matricula }}
+              · {{ ins.recaudos_pendientes ? 'faltan recaudos' : 'recaudos al día' }}
+            </q-item-label>
+          </q-item-section>
+          <q-item-section side>
+            <q-btn
+              v-if="ins.estado === 'preinscrito'"
+              unelevated
+              no-caps
+              color="primary"
+              text-color="dark"
+              label="Asignar sección"
+              @click="asignar(ins.id)"
+            />
+          </q-item-section>
+        </q-item>
+      </q-list>
+    </div>
+  </AppPage>
 </template>
 
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue';
 import { useQuasar } from 'quasar';
 import { api } from 'src/boot/axios';
+import AppPage from '../dashboard/AppPage.vue';
+
+function etiquetaEstado(v: string) {
+  const map: Record<string, string> = {
+    preinscrito: 'Preinscrito',
+    inscrito: 'Inscrito',
+    activo: 'Activo',
+    retirado: 'Retirado',
+  };
+  return map[v] ?? v;
+}
 
 interface Anio {
   id: string;

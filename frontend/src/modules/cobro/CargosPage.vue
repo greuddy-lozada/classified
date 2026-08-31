@@ -1,54 +1,57 @@
 <template>
-  <q-page class="q-pa-lg">
-    <div class="text-h5 q-mb-md">Cobro</div>
-    <div class="row q-col-gutter-sm q-mb-md">
-      <div class="col-6">
-        <q-select v-model="anioId" outlined dense emit-value map-options :options="anioOptions" label="Año escolar" />
-      </div>
-      <div class="col-6">
-        <q-select
-          v-model="periodos"
-          outlined
-          dense
-          multiple
-          emit-value
-          map-options
-          :options="mesOptions"
-          label="Mensualidades"
-        />
-      </div>
-      <div class="col-12">
-        <q-btn color="primary" label="Generar cargos" class="q-mr-sm" @click="generar" />
-        <q-btn outline color="primary" label="Cargar" @click="cargar" />
+  <AppPage title="Cobro" subtitle="Genera matrícula y mensualidades. Marca pagada o morosa.">
+    <div class="app-card">
+      <div class="row q-col-gutter-md">
+        <div class="col-12 col-sm-6">
+          <q-select v-model="anioId" outlined emit-value map-options :options="anioOptions" label="Año escolar" />
+        </div>
+        <div class="col-12 col-sm-6">
+          <q-select
+            v-model="periodos"
+            outlined
+            multiple
+            emit-value
+            map-options
+            :options="mesOptions"
+            label="Mensualidades"
+          />
+        </div>
+        <div class="col-12">
+          <q-btn unelevated color="primary" text-color="dark" no-caps label="Generar cargos" class="q-mr-sm" @click="generar" />
+          <q-btn outline no-caps color="primary" label="Actualizar" @click="cargar" />
+        </div>
       </div>
     </div>
-    <q-list bordered separator>
-      <q-item v-for="c in lista" :key="c.id">
-        <q-item-section>
-          <q-item-label>{{ c.alumno_nombres }} {{ c.alumno_apellidos }}</q-item-label>
-          <q-item-label caption>
-            {{ c.concepto }} · {{ c.estado }}
-            <span v-if="c.nota"> · {{ c.nota }}</span>
-          </q-item-label>
-        </q-item-section>
-        <q-item-section side>
-          <q-btn-toggle
-            :model-value="c.estado"
-            unelevated
-            dense
-            :options="estados"
-            @update:model-value="(v) => marcar(c.id, v)"
-          />
-        </q-item-section>
-      </q-item>
-    </q-list>
-  </q-page>
+    <div class="app-card">
+      <p v-if="!lista.length" class="app-empty">No hay cargos. Genera matrícula y los meses del año.</p>
+      <q-list v-else separator>
+        <q-item v-for="c in lista" :key="c.id" class="q-py-md">
+          <q-item-section>
+            <q-item-label>{{ c.alumno_nombres }} {{ c.alumno_apellidos }}</q-item-label>
+            <q-item-label caption>
+              {{ c.concepto }} · {{ c.estado }}
+              <span v-if="c.nota"> · {{ c.nota }}</span>
+            </q-item-label>
+          </q-item-section>
+          <q-item-section side>
+            <q-btn-toggle
+              :model-value="c.estado"
+              unelevated
+              :options="estados"
+              @update:model-value="(v) => marcar(c.id, v)"
+            />
+          </q-item-section>
+        </q-item>
+      </q-list>
+    </div>
+  </AppPage>
 </template>
 
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue';
 import { useQuasar } from 'quasar';
 import { api } from 'src/boot/axios';
+import AppPage from '../dashboard/AppPage.vue';
 
 interface Anio {
   id: string;
