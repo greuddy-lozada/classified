@@ -76,3 +76,17 @@ def secretaria(db: Session, org: Organizacion) -> Usuario:
     db.commit()
     db.refresh(user)
     return user
+
+
+@pytest.fixture
+def plataforma(db: Session) -> Usuario:
+    user = Usuario(
+        id=uuid.uuid4(),
+        email="ops@classified.app",
+        password_hash=hash_password("clave123"),
+        es_plataforma=True,
+    )
+    db.add(user)
+    db.commit()
+    db.refresh(user)
+    return user
