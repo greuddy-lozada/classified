@@ -6,6 +6,7 @@ services:
     environment:
       - DATABASE_URL=postgresql+psycopg://classified:classified@postgres:5432/classified
       - JWT_SECRET=dev-only-change-me
+      - SEED_DEV=1
     depends_on:
       postgres:
         condition: service_healthy

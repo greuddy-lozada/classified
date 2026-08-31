@@ -10,6 +10,7 @@ class Settings(BaseSettings):
     access_ttl_minutes: int = 30
     refresh_ttl_days: int = 14
     cors_origins: str = "http://localhost:9000"
+    seed_dev: bool = False
 
 
 settings = Settings()

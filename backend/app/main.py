@@ -2,7 +2,9 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.core.config import settings
+from app.db.session import SessionLocal
 from app.modules.identidad.router import router as identidad_router
+from app.modules.identidad.seed import seed_if_empty
 from app.modules.personas.router import router as personas_router
 from app.modules.plataforma.router import router as plataforma_router
 
@@ -19,6 +21,17 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+
+@app.on_event("startup")
+def _seed() -> None:
+    if not settings.seed_dev:
+        return
+    db = SessionLocal()
+    try:
+        seed_if_empty(db)
+    finally:
+        db.close()
 
 
 @app.get("/health")
