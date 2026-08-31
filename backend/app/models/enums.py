@@ -38,3 +38,28 @@ class Turno(str, Enum):
 class EsquemaEvaluacion(str, Enum):
     informe = "informe"
     numerico = "numerico"
+
+
+class EstadoInscripcion(str, Enum):
+    preinscrito = "preinscrito"
+    inscrito = "inscrito"
+    activo = "activo"
+    retirado = "retirado"
+
+
+class EstadoMatricula(str, Enum):
+    pendiente = "pendiente"
+    pagada = "pagada"
+    morosa = "morosa"
+
+
+class TipoRecaudo(str, Enum):
+    partida = "partida"
+    cedula_alumno = "cedula_alumno"
+    cedula_representante = "cedula_representante"
+    fotos = "fotos"
+
+
+class EstadoRecaudo(str, Enum):
+    faltante = "faltante"
+    entregado = "entregado"
