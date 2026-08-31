@@ -20,6 +20,7 @@ const routes: RouteRecordRaw[] = [
     meta: { requiresAuth: true },
     children: [
       { path: '', component: () => import('../modules/home/HomePage.vue') },
+      { path: 'periodo', component: () => import('../modules/periodo/PeriodoPage.vue') },
     ],
   },
   {

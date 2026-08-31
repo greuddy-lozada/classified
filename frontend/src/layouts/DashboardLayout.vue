@@ -44,7 +44,10 @@ export default defineComponent({
       if (auth.me?.rol === 'representante') {
         return [{ title: 'Mis pupilos', caption: 'Fichas', icon: 'family_restroom', link: '/dashboard' }];
       }
-      return [{ title: 'Inicio', caption: 'Plantel', icon: 'school', link: '/dashboard' }];
+      return [
+        { title: 'Inicio', caption: 'Plantel', icon: 'school', link: '/dashboard' },
+        { title: 'Año escolar', caption: 'Lapsos, grados, secciones', icon: 'event', link: '/dashboard/periodo' },
+      ];
     });
     return {
       linksList,
