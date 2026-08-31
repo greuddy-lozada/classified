@@ -1,21 +1,18 @@
 <template>
-  <q-page class="row items-center justify-evenly">
-    
+  <q-page class="q-pa-lg">
+    <div class="text-h5">{{ greeting }}</div>
+    <div class="text-caption">{{ auth.me?.email }} · {{ auth.me?.rol ?? 'plataforma' }}</div>
   </q-page>
 </template>
 
-<script lang="ts">
-import { defineComponent } from 'vue';
+<script setup lang="ts">
+import { computed } from 'vue';
+import { useAuthStore } from 'src/stores/auth';
 
-export default defineComponent({
-  name: 'HomePage',
-
-  components: {
-  },
-
-  setup() {
-
-
-  },
+const auth = useAuthStore();
+const greeting = computed(() => {
+  if (auth.me?.es_plataforma && !auth.me.rol) return 'Plataforma';
+  if (auth.me?.rol === 'representante') return 'Tus pupilos';
+  return 'Plantel';
 });
 </script>

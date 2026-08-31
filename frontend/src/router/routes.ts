@@ -10,18 +10,26 @@ const routes: RouteRecordRaw[] = [
     component: () => import('../modules/auth/pages/LoginPage.vue'),
   },
   {
-    path: '/signup',
-    component: () => import('../modules/auth/pages/SignupPage.vue'),
+    path: '/seleccionar',
+    component: () => import('../modules/auth/pages/SelectOrgPage.vue'),
+    meta: { requiresAuth: true },
   },
   {
     path: '/dashboard',
     component: () => import('layouts/DashboardLayout.vue'),
+    meta: { requiresAuth: true },
     children: [
-      { path: '/', component: () => import('../modules/home/HomePage.vue') }
+      { path: '', component: () => import('../modules/home/HomePage.vue') },
     ],
   },
-  // Always leave this as last one,
-  // but you can also remove it
+  {
+    path: '/plataforma',
+    component: () => import('layouts/DashboardLayout.vue'),
+    meta: { requiresAuth: true, plataforma: true },
+    children: [
+      { path: '', component: () => import('../modules/home/HomePage.vue') },
+    ],
+  },
   {
     path: '/:catchAll(.*)*',
     component: () => import('../modules/error/NotFoundPage.vue'),

@@ -61,42 +61,53 @@
 </template>
 
 <script lang="ts">
-import { useQuasar } from 'quasar'
-import { ref } from 'vue'
-import ButtonBack from 'src/modules/core/utils/ButtonBack.vue'
-
+import { useQuasar } from 'quasar';
+import { ref } from 'vue';
+import { useRouter } from 'vue-router';
+import ButtonBack from 'src/modules/core/utils/ButtonBack.vue';
+import { useAuthStore } from 'src/stores/auth';
 
 export default {
   components: {
-    ButtonBack
+    ButtonBack,
   },
   setup() {
-    const $q = useQuasar()
-    const email = ref('')
-    const password = ref('')
+    const $q = useQuasar();
+    const router = useRouter();
+    const auth = useAuthStore();
+    const email = ref('');
+    const password = ref('');
 
-    const handleSubmit = () => {
-      console.log('Submitted', { email: email.value, password: password.value })
-    }
+    const handleSubmit = async () => {
+      try {
+        await auth.login(email.value, password.value);
+        if (auth.me?.es_plataforma) {
+          await router.push('/plataforma');
+          return;
+        }
+        if (!auth.me?.organizacion_id || !auth.me?.rol) {
+          await router.push('/seleccionar');
+          return;
+        }
+        await router.push('/dashboard');
+      } catch {
+        $q.notify({ type: 'negative', message: 'Credenciales inválidas', position: 'top' });
+      }
+    };
 
     const onReset = () => {
-      email.value = ''
-      password.value = ''
-      $q.notify({
-        type: 'info',
-        message: 'Formulario reiniciado',
-        position: 'top'
-      })
-    }
+      email.value = '';
+      password.value = '';
+    };
 
-    return { 
+    return {
       email,
       password,
       handleSubmit,
-      onReset
-    }
-  }
-}
+      onReset,
+    };
+  },
+};
 </script>
 
 <style lang="css">

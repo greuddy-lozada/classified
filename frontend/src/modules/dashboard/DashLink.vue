@@ -1,5 +1,11 @@
 <template>
-  <q-item clickable tag="a" target="_blank" :href="link">
+  <q-item
+    clickable
+    :tag="link.startsWith('/') ? 'router-link' : 'a'"
+    :to="link.startsWith('/') ? link : undefined"
+    :href="link.startsWith('/') ? undefined : link"
+    :target="link.startsWith('/') ? undefined : '_blank'"
+  >
     <q-item-section v-if="icon" avatar>
       <q-icon :name="icon" />
     </q-item-section>

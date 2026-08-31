@@ -33,5 +33,13 @@ export default defineRouter(function (/* { store, ssrContext } */) {
     history: createHistory(process.env.VUE_ROUTER_BASE),
   });
 
+  Router.beforeEach(async (to) => {
+    const token = localStorage.getItem('access_token');
+    if (to.meta.requiresAuth && !token) {
+      return '/login';
+    }
+    return true;
+  });
+
   return Router;
 });

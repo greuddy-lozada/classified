@@ -6,7 +6,7 @@
 
         <q-toolbar-title> Classified </q-toolbar-title>
 
-        <div>Classified v{{ $q.version }}</div>
+        <q-btn flat label="Salir" @click="logout" />
       </q-toolbar>
     </q-header>
 
@@ -25,69 +25,36 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref } from 'vue';
+import { computed, defineComponent, ref } from 'vue';
+import { useRouter } from 'vue-router';
 import DashLink, { type DashLinkProps } from '../modules/dashboard/DashLink.vue';
-
-const linksList: DashLinkProps[] = [
-  {
-    title: 'Docs',
-    caption: 'quasar.dev',
-    icon: 'school',
-    link: 'https://quasar.dev',
-  },
-  {
-    title: 'Github',
-    caption: 'github.com/quasarframework',
-    icon: 'code',
-    link: 'https://github.com/quasarframework',
-  },
-  {
-    title: 'Discord Chat Channel',
-    caption: 'chat.quasar.dev',
-    icon: 'chat',
-    link: 'https://chat.quasar.dev',
-  },
-  {
-    title: 'Forum',
-    caption: 'forum.quasar.dev',
-    icon: 'record_voice_over',
-    link: 'https://forum.quasar.dev',
-  },
-  {
-    title: 'Twitter',
-    caption: '@quasarframework',
-    icon: 'rss_feed',
-    link: 'https://twitter.quasar.dev',
-  },
-  {
-    title: 'Facebook',
-    caption: '@QuasarFramework',
-    icon: 'public',
-    link: 'https://facebook.quasar.dev',
-  },
-  {
-    title: 'Quasar Awesome',
-    caption: 'Community Quasar projects',
-    icon: 'favorite',
-    link: 'https://awesome.quasar.dev',
-  },
-];
+import { useAuthStore } from 'src/stores/auth';
 
 export default defineComponent({
   name: 'DashboardLayout',
-
-  components: {
-    DashLink,
-  },
-
+  components: { DashLink },
   setup() {
     const leftDrawerOpen = ref(false);
-
+    const auth = useAuthStore();
+    const router = useRouter();
+    const linksList = computed<DashLinkProps[]>(() => {
+      if (auth.me?.es_plataforma && !auth.me.rol) {
+        return [{ title: 'Planteles', caption: 'Alta de colegios', icon: 'apartment', link: '/plataforma' }];
+      }
+      if (auth.me?.rol === 'representante') {
+        return [{ title: 'Mis pupilos', caption: 'Fichas', icon: 'family_restroom', link: '/dashboard' }];
+      }
+      return [{ title: 'Inicio', caption: 'Plantel', icon: 'school', link: '/dashboard' }];
+    });
     return {
       linksList,
       leftDrawerOpen,
       toggleLeftDrawer() {
         leftDrawerOpen.value = !leftDrawerOpen.value;
+      },
+      logout() {
+        auth.logout();
+        void router.push('/login');
       },
     };
   },
