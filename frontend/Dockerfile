@@ -1,4 +1,4 @@
-FROM node:18-bullseye
+FROM node:20-bookworm
 
 # Enable corepack for pnpm
 RUN corepack enable
@@ -30,4 +30,4 @@ COPY index.html ./
 RUN pnpm run build
 
 EXPOSE 9000
-CMD ["quasar", "dev"]
+CMD ["pnpm", "exec", "quasar", "dev"]

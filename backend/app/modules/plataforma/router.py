@@ -13,9 +13,19 @@ from app.models.organizacion import Organizacion
 from app.models.persona import Persona
 from app.models.trabajador import Trabajador
 from app.models.usuario import Usuario
-from app.schemas.plataforma import OrganizacionCreate, OrganizacionOut
+from app.schemas.plataforma import OrganizacionCreate, OrganizacionListaOut, OrganizacionOut
 
 router = APIRouter(prefix="/plataforma", tags=["plataforma"])
+
+
+@router.get("/organizaciones", response_model=list[OrganizacionListaOut])
+def listar_organizaciones(
+    db: Annotated[Session, Depends(get_db)],
+    current: Annotated[CurrentUser, Depends(get_current_user)],
+) -> list[Organizacion]:
+    if not current.es_plataforma:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Solo plataforma")
+    return db.query(Organizacion).all()
 
 
 @router.post("/organizaciones", response_model=OrganizacionOut, status_code=status.HTTP_201_CREATED)

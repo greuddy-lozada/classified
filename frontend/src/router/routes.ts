@@ -37,7 +37,7 @@ const routes: RouteRecordRaw[] = [
     component: () => import('layouts/DashboardLayout.vue'),
     meta: { requiresAuth: true, plataforma: true },
     children: [
-      { path: '', component: () => import('../modules/home/HomePage.vue') },
+      { path: '', component: () => import('../modules/plataforma/PlantelesPage.vue') },
     ],
   },
   {

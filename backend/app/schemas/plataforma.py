@@ -17,3 +17,9 @@ class OrganizacionOut(BaseModel):
     nombre: str
     rif: str | None
     admin_usuario_id: UUID
+
+
+class OrganizacionListaOut(BaseModel):
+    id: UUID
+    nombre: str
+    rif: str | None

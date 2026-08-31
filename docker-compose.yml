@@ -12,6 +12,10 @@ services:
         condition: service_healthy
     volumes:
       - ./backend:/app
+    working_dir: /app
+    security_opt:
+      - label=disable
+    command: sh -c "alembic upgrade head && uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload"
     restart: unless-stopped
 
   frontend:
@@ -24,17 +28,19 @@ services:
       - ./frontend/quasar.config.js:/app/quasar.config.js
       - ./frontend/package.json:/app/package.json
       - ./frontend/index.html:/app/index.html
+    security_opt:
+      - label=disable
     environment:
       - VITE_API_URL=http://localhost:8000
     depends_on:
       - backend
-    command: quasar dev
+    command: pnpm exec quasar dev
     restart: unless-stopped
 
   postgres:
     image: postgres:16-alpine
     ports:
-      - "5432:5432"
+      - "5433:5432"
     environment:
       POSTGRES_USER: classified
       POSTGRES_PASSWORD: classified

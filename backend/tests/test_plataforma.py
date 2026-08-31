@@ -44,3 +44,6 @@ def test_plataforma_crea_colegio_y_admin(client: TestClient, plataforma: Usuario
     login = client.post("/auth/login", json={"email": "dir@b.edu", "password": "clave123"})
     assert login.status_code == 200
     assert login.json()["membresias"][0]["rol"] == "direccion"
+    listed = client.get("/plataforma/organizaciones", headers={"Authorization": f"Bearer {token}"})
+    assert listed.status_code == 200
+    assert listed.json()[0]["nombre"] == "Colegio B"
