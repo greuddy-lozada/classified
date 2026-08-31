@@ -6,6 +6,9 @@
       <div class="col-6">
         <q-select v-model="anioId" outlined dense :options="anioOptions" label="Año escolar" emit-value map-options />
       </div>
+      <div class="col-6">
+        <q-select v-model="seccionId" outlined dense :options="seccionOptions" label="Sección a asignar" emit-value map-options />
+      </div>
     </div>
 
     <q-form class="row q-col-gutter-sm q-mb-lg" @submit.prevent="solicitarCupo">
@@ -49,7 +52,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue';
+import { computed, ref, watch } from 'vue';
 import { useQuasar } from 'quasar';
 import { api } from 'src/boot/axios';
 
@@ -59,6 +62,7 @@ interface Anio {
 }
 interface Grado {
   id: string;
+  nombre: string;
   secciones: { id: string; letra: string; turno: string }[];
 }
 interface Persona {
@@ -79,12 +83,19 @@ interface Inscripcion {
 
 const $q = useQuasar();
 const anios = ref<Anio[]>([]);
+const grados = ref<Grado[]>([]);
 const anioId = ref<string | null>(null);
+const seccionId = ref<string | null>(null);
 const personas = ref<Persona[]>([]);
 const lista = ref<Inscripcion[]>([]);
 const alumnoId = ref<string | null>(null);
 
 const anioOptions = computed(() => anios.value.map((a) => ({ label: a.nombre, value: a.id })));
+const seccionOptions = computed(() =>
+  grados.value.flatMap((g) =>
+    g.secciones.map((s) => ({ label: `${g.nombre} ${s.letra} ${s.turno}`, value: s.id })),
+  ),
+);
 const alumnoOptions = computed(() =>
   personas.value
     .filter((p) => p.es_alumno && p.alumno_id)
@@ -97,16 +108,18 @@ async function cargar() {
   if (!anioId.value && data[0]) anioId.value = data[0].id;
   const pers = await api.get<Persona[]>('/personas');
   personas.value = pers.data;
-  if (anioId.value) {
-    const ins = await api.get<Inscripcion[]>('/inscripciones', { params: { anio_escolar_id: anioId.value } });
-    lista.value = ins.data;
-  }
+  await cargarAnio();
 }
 
-async function primeraSeccion(): Promise<string | null> {
-  if (!anioId.value) return null;
-  const { data } = await api.get<Grado[]>('/periodo/grados', { params: { anio_escolar_id: anioId.value } });
-  return data[0]?.secciones[0]?.id ?? null;
+async function cargarAnio() {
+  if (!anioId.value) return;
+  const [ins, g] = await Promise.all([
+    api.get<Inscripcion[]>('/inscripciones', { params: { anio_escolar_id: anioId.value } }),
+    api.get<Grado[]>('/periodo/grados', { params: { anio_escolar_id: anioId.value } }),
+  ]);
+  lista.value = ins.data;
+  grados.value = g.data;
+  if (!seccionId.value && seccionOptions.value[0]) seccionId.value = seccionOptions.value[0].value;
 }
 
 async function solicitarCupo() {
@@ -120,9 +133,9 @@ async function solicitarCupo() {
 }
 
 async function asignar(id: string) {
-  const sid = await primeraSeccion();
+  const sid = seccionId.value;
   if (!sid) {
-    $q.notify({ type: 'warning', message: 'Crea una sección primero' });
+    $q.notify({ type: 'warning', message: 'Elige una sección' });
     return;
   }
   try {
@@ -137,5 +150,9 @@ async function asignar(id: string) {
   }
 }
 
-onMounted(cargar);
+watch(anioId, () => {
+  seccionId.value = null;
+  void cargarAnio();
+});
+void cargar();
 </script>

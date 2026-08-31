@@ -15,7 +15,17 @@
       <div class="text-subtitle1">
         {{ anio.nombre }} <q-badge v-if="anio.activo" color="positive" label="activo" />
       </div>
-      <div class="text-caption q-mb-sm">Lapsos: {{ anio.lapsos.map((l) => l.nombre).join(', ') }}</div>
+      <div class="row q-col-gutter-sm q-mb-sm">
+        <div v-for="l in anio.lapsos" :key="l.id" class="col-auto">
+          <q-btn
+            dense
+            unelevated
+            :color="l.cerrado ? 'grey' : 'secondary'"
+            :label="l.cerrado ? `${l.nombre} · reabrir` : `${l.nombre} · cerrar`"
+            @click="l.cerrado ? reabrirLapso(l.id) : cerrarLapso(l.id)"
+          />
+        </div>
+      </div>
 
       <q-form class="row q-col-gutter-sm q-mb-sm" @submit.prevent="crearGrado(anio.id)">
         <div class="col-3">
@@ -128,6 +138,24 @@ async function crearSeccion(gradoId: string, letra: string, turno: string) {
     await cargar();
   } catch {
     $q.notify({ type: 'negative', message: 'No se pudo crear la sección' });
+  }
+}
+
+async function cerrarLapso(id: string) {
+  try {
+    await api.post(`/periodo/lapsos/${id}/cerrar`);
+    await cargar();
+  } catch {
+    $q.notify({ type: 'negative', message: 'No se pudo cerrar el lapso' });
+  }
+}
+
+async function reabrirLapso(id: string) {
+  try {
+    await api.post(`/periodo/lapsos/${id}/reabrir`);
+    await cargar();
+  } catch {
+    $q.notify({ type: 'negative', message: 'No se pudo reabrir el lapso' });
   }
 }
 

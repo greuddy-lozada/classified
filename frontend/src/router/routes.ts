@@ -20,6 +20,7 @@ const routes: RouteRecordRaw[] = [
     meta: { requiresAuth: true },
     children: [
       { path: '', component: () => import('../modules/home/HomePage.vue') },
+      { path: 'fichas', component: () => import('../modules/personas/FichasPage.vue') },
       { path: 'periodo', component: () => import('../modules/periodo/PeriodoPage.vue') },
       { path: 'inscripciones', component: () => import('../modules/inscripcion/InscripcionPage.vue') },
       { path: 'mis-inscripciones', component: () => import('../modules/inscripcion/MisInscripcionesPage.vue') },

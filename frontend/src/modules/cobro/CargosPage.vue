@@ -3,10 +3,19 @@
     <div class="text-h5 q-mb-md">Cobro</div>
     <div class="row q-col-gutter-sm q-mb-md">
       <div class="col-6">
-        <q-input v-model="anioId" outlined dense label="ID año escolar" />
+        <q-select v-model="anioId" outlined dense emit-value map-options :options="anioOptions" label="Año escolar" />
       </div>
       <div class="col-6">
-        <q-input v-model="periodos" outlined dense label="Meses (2026-09,2026-10)" />
+        <q-select
+          v-model="periodos"
+          outlined
+          dense
+          multiple
+          emit-value
+          map-options
+          :options="mesOptions"
+          label="Mensualidades"
+        />
       </div>
       <div class="col-12">
         <q-btn color="primary" label="Generar cargos" class="q-mr-sm" @click="generar" />
@@ -37,10 +46,14 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
+import { computed, ref, watch } from 'vue';
 import { useQuasar } from 'quasar';
 import { api } from 'src/boot/axios';
 
+interface Anio {
+  id: string;
+  nombre: string;
+}
 interface Cargo {
   id: string;
   alumno_nombres: string;
@@ -50,15 +63,50 @@ interface Cargo {
   nota: string | null;
 }
 
+const MESES = [
+  [9, 'Septiembre'],
+  [10, 'Octubre'],
+  [11, 'Noviembre'],
+  [12, 'Diciembre'],
+  [1, 'Enero'],
+  [2, 'Febrero'],
+  [3, 'Marzo'],
+  [4, 'Abril'],
+  [5, 'Mayo'],
+  [6, 'Junio'],
+  [7, 'Julio'],
+] as const;
+
 const $q = useQuasar();
-const anioId = ref('');
-const periodos = ref('2026-09,2026-10,2026-11');
+const anios = ref<Anio[]>([]);
+const anioId = ref<string | null>(null);
+const periodos = ref<string[]>([]);
 const lista = ref<Cargo[]>([]);
 const estados = [
   { label: 'Pendiente', value: 'pendiente' },
   { label: 'Pagada', value: 'pagada' },
   { label: 'Morosa', value: 'morosa' },
 ];
+
+const anioOptions = computed(() => anios.value.map((a) => ({ label: a.nombre, value: a.id })));
+const anioActual = computed(() => anios.value.find((a) => a.id === anioId.value));
+const mesOptions = computed(() => {
+  const nombre = anioActual.value?.nombre ?? '';
+  const match = /^(\d{4})-(\d{4})$/.exec(nombre);
+  const inicio = match ? Number(match[1]) : new Date().getFullYear();
+  const fin = match ? Number(match[2]) : inicio + 1;
+  return MESES.map(([mes, label]) => {
+    const year = mes >= 9 ? inicio : fin;
+    const value = `${year}-${String(mes).padStart(2, '0')}`;
+    return { label: `${label} ${year}`, value };
+  });
+});
+
+async function cargarAnios() {
+  const { data } = await api.get<Anio[]>('/periodo/anios');
+  anios.value = data;
+  if (!anioId.value && data[0]) anioId.value = data[0].id;
+}
 
 async function cargar() {
   try {
@@ -74,13 +122,7 @@ async function cargar() {
 async function generar() {
   if (!anioId.value) return;
   try {
-    await api.post('/cobro/generar', {
-      anio_escolar_id: anioId.value,
-      periodos: periodos.value
-        .split(',')
-        .map((p) => p.trim())
-        .filter(Boolean),
-    });
+    await api.post('/cobro/generar', { anio_escolar_id: anioId.value, periodos: periodos.value });
     await cargar();
   } catch {
     $q.notify({ type: 'negative', message: 'No se pudieron generar los cargos' });
@@ -95,4 +137,10 @@ async function marcar(id: string, estado: string) {
     $q.notify({ type: 'negative', message: 'No se pudo marcar el cargo' });
   }
 }
+
+watch(anioId, () => {
+  periodos.value = mesOptions.value.map((m) => m.value);
+  void cargar();
+});
+void cargarAnios();
 </script>

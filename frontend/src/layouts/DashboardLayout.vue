@@ -50,15 +50,21 @@ export default defineComponent({
           { title: 'Cobro', caption: 'Matrícula y mensualidad', icon: 'payments', link: '/dashboard/mis-cobros' },
         ];
       }
+      if (auth.me?.rol === 'docente') {
+        return [
+          { title: 'Inicio', caption: 'Plantel', icon: 'school', link: '/dashboard' },
+          { title: 'Evaluación', caption: 'Notas e informes', icon: 'grade', link: '/dashboard/evaluacion' },
+          { title: 'Asistencia', caption: 'Lista del día', icon: 'event_available', link: '/dashboard/asistencia' },
+        ];
+      }
       return [
         { title: 'Inicio', caption: 'Plantel', icon: 'school', link: '/dashboard' },
+        { title: 'Fichas', caption: 'Alumnos y representantes', icon: 'badge', link: '/dashboard/fichas' },
         { title: 'Año escolar', caption: 'Lapsos, grados, secciones', icon: 'event', link: '/dashboard/periodo' },
         { title: 'Inscripciones', caption: 'Cupo y sección', icon: 'how_to_reg', link: '/dashboard/inscripciones' },
         { title: 'Evaluación', caption: 'Notas e informes', icon: 'grade', link: '/dashboard/evaluacion' },
         { title: 'Asistencia', caption: 'Lista del día', icon: 'event_available', link: '/dashboard/asistencia' },
-        ...(auth.me?.rol === 'docente'
-          ? []
-          : [{ title: 'Cobro', caption: 'Matrícula y mensualidad', icon: 'payments', link: '/dashboard/cobro' }]),
+        { title: 'Cobro', caption: 'Matrícula y mensualidad', icon: 'payments', link: '/dashboard/cobro' },
       ];
     });
     return {
