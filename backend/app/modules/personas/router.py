@@ -6,8 +6,8 @@ from sqlalchemy.orm import Session
 
 from app.core.deps import CurrentUser, require_org
 from app.db.session import get_db
-from app.modules.personas.service import crear_alumno, listar, obtener
-from app.schemas.persona import PersonaCreate, PersonaOut
+from app.modules.personas.service import crear_alumno, crear_representante, listar, mis_pupilos, obtener
+from app.schemas.persona import PersonaCreate, PersonaOut, RepresentanteCreate
 
 router = APIRouter(prefix="/personas", tags=["personas"])
 
@@ -37,6 +37,26 @@ def get_personas(
 ) -> list[PersonaOut]:
     _staff(current)
     return listar(db, current.org_id)
+
+
+@router.post("/representantes", response_model=PersonaOut, status_code=status.HTTP_201_CREATED)
+def post_representante(
+    body: RepresentanteCreate,
+    db: Annotated[Session, Depends(get_db)],
+    current: Annotated[CurrentUser, Depends(require_org)],
+) -> PersonaOut:
+    _staff(current)
+    return crear_representante(db, current.org_id, **body.model_dump())
+
+
+@router.get("/mis-pupilos", response_model=list[PersonaOut])
+def get_mis_pupilos(
+    db: Annotated[Session, Depends(get_db)],
+    current: Annotated[CurrentUser, Depends(require_org)],
+) -> list[PersonaOut]:
+    if current.rol != "representante":
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="No autorizado")
+    return mis_pupilos(db, current.org_id, current.usuario.id)
 
 
 @router.get("/{persona_id}", response_model=PersonaOut)

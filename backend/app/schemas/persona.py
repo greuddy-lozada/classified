@@ -3,7 +3,7 @@ from uuid import UUID
 
 from pydantic import BaseModel
 
-from app.models.enums import TipoDoc
+from app.models.enums import Parentesco, TipoDoc
 
 
 class PersonaCreate(BaseModel):
@@ -26,3 +26,12 @@ class PersonaOut(BaseModel):
     nombres: str
     apellidos: str
     es_alumno: bool
+    alumno_id: UUID | None = None
+
+
+class RepresentanteCreate(PersonaCreate):
+    email: str
+    password: str
+    alumno_id: UUID
+    parentesco: Parentesco
+    es_principal: bool = True
