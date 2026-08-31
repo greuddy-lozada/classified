@@ -1,12 +1,32 @@
-# 💻 Classifed
+# Classified
 
-A modern full-stack academic application with FastAPI backend, Quasar frontend, and MongoDB, all containerized with Docker.
+SIS para colegios privados en Venezuela.
 
-## ✨ Features
+## Stack
 
-- **🎯 Backend**: FastAPI with Python 3.11
-- **🎨 Frontend**: Quasar (Vue.js) Framework  
-- **🗄️ Database**: MongoDB with persistent storage
-- **🐳 Containerized**: Docker & Docker Compose
-- **🔄 Hot Reload**: Live code updates during development
-- **🔐 Auth Ready**: JWT authentication setup included
+- Quasar (Vue 3)
+- FastAPI
+- PostgreSQL 16
+
+## Desarrollo
+
+```bash
+docker compose up --build
+```
+
+API: http://localhost:8000  
+Cliente: http://localhost:9000
+
+Usuario de plataforma (si `SEED_DEV=1`): `ops@classified.app` / `clave123`
+
+Migraciones (dentro de `backend/` o el contenedor):
+
+```bash
+alembic upgrade head
+```
+
+Tests:
+
+```bash
+cd backend && pytest -v
+```
